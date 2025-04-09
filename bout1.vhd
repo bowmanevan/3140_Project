@@ -21,8 +21,6 @@ entity bout1 is
 	row_two_top : INTEGER := 135;
 	row_two_bottom : INTEGER := 140;
 	
-	paddle_left :  INTEGER := 295;
-	paddle_right : INTEGER := 345;
 	paddle_top : INTEGER := 425;
 	paddle_bottom : INTEGER := 430;
 	
@@ -68,7 +66,6 @@ entity bout1 is
 	
 	block_14_left :  INTEGER := 535;
 	block_14_right : INTEGER := 560
-
 	); 
 
 
@@ -159,7 +156,118 @@ SIGNAL add_val : STD_LOGIC_VECTOR (1 downto 0) := "01";
 signal count_clk : std_logic_vector (15 downto 0) := (others => '0');
 signal encode_clk : std_logic := '0';
 
+
+-- ball clock
+signal ball_counter : INTEGER:= 1250000;
+signal ball_clk : std_logic := '0';
+
+-- ball signals
+--signal ball_top : INTEGER:= 235;
+--signal ball_bottom : INTEGER:= 240;
+signal ball_top : INTEGER:= 145;
+signal ball_bottom : INTEGER:= 150;
+signal ball_left : INTEGER := 315;
+signal ball_right : INTEGER := 320;
+
+-- intialized to left and down
+signal left_right : std_logic := '0'; 
+signal up_down : std_logic := '1'; 
+signal reset_location : std_logic := '0'; 
+
 BEGIN
+
+-- movement for the ball
+ball_direction : process(pll_OUT_to_vga_controller_IN)
+begin
+	if(rising_edge(pll_OUT_to_vga_controller_IN)) then 
+		 --move south-west by 1 pixel every 0.05 seconds
+		 
+		 -- if ball hits left border at 75 pixels, invert direction from left to right
+		 if (ball_left <= col_a_right) then
+			left_right <= '1';
+		 -- if ball hits right border at 565 pixels, invert direction from right to left
+		 elsif (ball_right >= col_z_left) then
+			left_right <= '0';
+		 -- if ball hits top border at 75 pixels, invert direction from up to down
+		 elsif (ball_top <= 75) then
+			up_down <= '1';
+		 -- if ball hits bottom "pit" at 480 pixels, reset ball to initial position
+		 elsif (ball_bottom >= 480) then
+			reset_location <= '1';
+			
+		 -- if hit the top of paddle and one of the ball's sides is between the limits of the paddle
+		 elsif ( ball_bottom = paddle_top AND ((x_left <= ball_left AND ball_left <= x_right) OR (x_left <= ball_right AND ball_right <= x_right)) ) then
+			-- rebound up
+			up_down <= '0';
+			
+		 -- if hit the bottom of paddle and one of the ball's sides is between the limits of the paddle
+		 elsif ( ball_top = paddle_bottom AND ((x_left <= ball_left AND ball_left <= x_right) OR (x_left <= ball_right AND ball_right <= x_right)) ) then
+			-- rebound down
+			up_down <= '1';
+			
+		 -- if hit the right side of paddle and either the top or bottom of the ball is between the limits of the paddle
+		 elsif ( ball_left = x_right AND ((paddle_top <= ball_top AND ball_top <= paddle_bottom) OR (paddle_top <= ball_bottom AND ball_bottom <= paddle_bottom)) ) then
+			-- rebound right
+			left_right <= '1';
+			
+		 -- if hit the left side of paddle and either the top or bottom of the ball is between the limits of the paddle
+		 elsif ( ball_right = x_left AND ((paddle_top <= ball_top AND ball_top <= paddle_bottom) OR (paddle_top <= ball_bottom AND ball_bottom <= paddle_bottom)) ) then
+			-- rebound left
+			left_right <= '0';
+			
+		 else
+			reset_location <= '0';
+		 end if;
+	end if;
+end process;
+
+ball_movement : process(ball_clk)
+begin
+
+IF(rising_edge(ball_clk)) THEN
+	-- if ball has not fallen in the "pit"
+	if (reset_location = '0') then
+		-- moving left
+		if(left_right = '0') then
+			ball_left  <= ball_left - 1;
+			ball_right <= ball_right - 1;
+		-- moving right
+		elsif (left_right = '1') then
+			ball_left  <= ball_left + 1;
+			ball_right <= ball_right +	1;
+		end if;
+		
+		-- moving up
+		if(up_down = '0') then
+			ball_top <= ball_top - 1;
+			ball_bottom <= ball_bottom - 1;
+		-- moving down
+		elsif (up_down = '1') then
+			ball_top <= ball_top + 1;
+			ball_bottom <= ball_bottom + 1;
+		end if;
+	-- reset to initial position, if ball has fallen in pit
+	else
+		ball_top <= 145;
+		ball_bottom <= 150;
+		ball_left <= 315;
+		ball_right <= 320;
+	end if;
+END IF;
+end process;	
+
+-- 0.05 second clock for ball movement testing
+ball_clock : process(max10_clk)
+        begin
+        if(rising_edge(max10_clk)) then 
+            ball_counter <= ball_counter - 1;
+            -- if count value has counted to 2,500,000, toggle ball_clock
+                if (ball_counter <= 0) then
+                    ball_clk <= not ball_clk;
+                    ball_counter <= 1250000;
+                end if;
+        end if;
+end process;
 
 -- 100 Hz clock for rotary encoder (low enough frequency to ignore noise)
 prescale_clock : process(max10_clk)
@@ -236,6 +344,12 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 			  
 			-- PADDLE
 			ELSIF(x_left < colSignal AND colSignal < x_right AND paddle_top < rowSignal AND rowSignal < paddle_bottom) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			  
+			-- BALL
+			ELSIF(ball_left < colSignal AND colSignal < ball_right AND ball_top < rowSignal AND rowSignal < ball_bottom) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
