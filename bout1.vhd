@@ -1,6 +1,8 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use IEEE.numeric_std.all;
+-- array package
+use work.block_types.all;
 
 
 entity bout1 is 
@@ -24,48 +26,17 @@ entity bout1 is
 	paddle_top : INTEGER := 425;
 	paddle_bottom : INTEGER := 430;
 	
+	block_left  : int_array := (
+		 1 => 80,  2 => 115, 3 => 150, 4 => 185, 5 => 220,
+		 6 => 255, 7 => 290, 8 => 325, 9 => 360, 10 => 395,
+		 11 => 430, 12 => 465, 13 => 500, 14 => 535
+	);
+	block_right : int_array := (
+		 1 => 105, 2 => 140, 3 => 175, 4 => 210, 5 => 245,
+		 6 => 280, 7 => 315, 8 => 350, 9 => 385, 10 => 420,
+		 11 => 455, 12 => 490, 13 => 525, 14 => 560
+	)
 	
-	block_1_left :  INTEGER := 80;
-	block_1_right : INTEGER := 105;
-	
-	block_2_left :  INTEGER := 115;
-	block_2_right : INTEGER := 140;
-	
-	block_3_left :  INTEGER := 150;
-	block_3_right : INTEGER := 175;
-	
-	block_4_left :  INTEGER := 185;
-	block_4_right : INTEGER := 210;
-	
-	block_5_left :  INTEGER := 220;
-	block_5_right : INTEGER := 245;
-	
-	block_6_left :  INTEGER := 255;
-	block_6_right : INTEGER := 280;
-	
-	block_7_left :  INTEGER := 290;
-	block_7_right : INTEGER := 315;
-	
-	block_8_left :  INTEGER := 325;
-	block_8_right : INTEGER := 350;
-	
-	block_9_left :  INTEGER := 360;
-	block_9_right : INTEGER := 385;
-	
-	block_10_left :  INTEGER := 395;
-	block_10_right : INTEGER := 420;
-	
-	block_11_left :  INTEGER := 430;
-	block_11_right : INTEGER := 455;
-	
-	block_12_left :  INTEGER := 465;
-	block_12_right : INTEGER := 490;
-	
-	block_13_left :  INTEGER := 500;
-	block_13_right : INTEGER := 525;
-	
-	block_14_left :  INTEGER := 535;
-	block_14_right : INTEGER := 560
 	); 
 
 
@@ -164,15 +135,22 @@ signal ball_clk : std_logic := '0';
 -- ball signals
 --signal ball_top : INTEGER:= 235;
 --signal ball_bottom : INTEGER:= 240;
-signal ball_top : INTEGER:= 145;
-signal ball_bottom : INTEGER:= 150;
-signal ball_left : INTEGER := 315;
-signal ball_right : INTEGER := 320;
+signal ball_top : INTEGER:= 205;
+signal ball_bottom : INTEGER:= 210;
+signal ball_left : INTEGER := 150;
+signal ball_right : INTEGER := 155;
 
 -- intialized to left and down
+	-- left = 0, right = 1
 signal left_right : std_logic := '0'; 
-signal up_down : std_logic := '1'; 
+	-- up = 0, down = 1
+signal up_down : std_logic := '0'; 
 signal reset_location : std_logic := '0'; 
+
+
+-- block visibility signals
+type block_on_array is array(1 to 28) of std_logic;
+signal block_on : block_on_array := (1 to 28 => '1');
 
 BEGIN
 
@@ -215,6 +193,27 @@ begin
 			-- rebound left
 			left_right <= '0';
 			
+			-- BLOCK 15
+			elsif ( block_on(15) = '1' ) then
+				if ( ball_bottom = row_two_top AND ((block_left(1) <= ball_left AND ball_left <= block_right(1)) OR (block_left(1) <= ball_right AND ball_right <= block_right(1))) ) then
+					-- rebound up
+					up_down <= '0';
+					block_on(15) <= '0';
+				elsif ( ball_top = row_two_bottom AND ((block_left(1) <= ball_left AND ball_left <= block_right(1)) OR (block_left(1) <= ball_right AND ball_right <= block_right(1))) ) then
+					-- rebound down
+					up_down <= '1';
+					block_on(15) <= '0';
+				elsif ( ball_left = block_right(1) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
+					-- rebound right
+					left_right <= '1';
+					block_on(15) <= '0';
+				elsif ( ball_right = block_left(1) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
+					-- rebound left
+					left_right <= '0';
+					block_on(15) <= '0';
+				end if;
+				
+				
 		 else
 			reset_location <= '0';
 		 end if;
@@ -248,10 +247,10 @@ IF(rising_edge(ball_clk)) THEN
 		end if;
 	-- reset to initial position, if ball has fallen in pit
 	else
-		ball_top <= 145;
-		ball_bottom <= 150;
-		ball_left <= 315;
-		ball_right <= 320;
+		ball_top <= 155;
+		ball_bottom <= 160;
+		ball_left <= 100;
+		ball_right <= 105;
 	end if;
 END IF;
 end process;	
@@ -355,143 +354,143 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 			  blue_m <= (OTHERS => '1');
 			  
 			-- block 1
-			ELSIF(block_1_left < colSignal AND colSignal < block_1_right AND row_one_top < rowSignal AND rowSignal < row_one_bottom) THEN
+			ELSIF(block_on(1) = '1' AND block_left(1) < colSignal AND colSignal < block_right(1) AND row_one_top < rowSignal AND rowSignal < row_one_bottom) THEN
 				  red_m <= (OTHERS => '1');
 				  green_m  <= (OTHERS => '1');
 				  blue_m <= (OTHERS => '1');
 			-- block 2
-			ELSIF(block_2_left < colSignal AND colSignal < block_2_right AND row_one_top < rowSignal AND rowSignal < row_one_bottom) THEN
+			ELSIF(block_on(2) = '1' AND block_left(2) < colSignal AND colSignal < block_right(2) AND row_one_top < rowSignal AND rowSignal < row_one_bottom) THEN
 				  red_m <= (OTHERS => '1');
 				  green_m  <= (OTHERS => '1');
 				  blue_m <= (OTHERS => '1');
 			  -- block 3
-			ELSIF(block_3_left < colSignal AND colSignal < block_3_right AND row_one_top < rowSignal AND rowSignal < row_one_bottom) THEN
+			ELSIF(block_on(3) = '1' AND block_left(3) < colSignal AND colSignal < block_right(3) AND row_one_top < rowSignal AND rowSignal < row_one_bottom) THEN
 				  red_m <= (OTHERS => '1');
 				  green_m  <= (OTHERS => '1');
 				  blue_m <= (OTHERS => '1');
 			  -- block 4
-			ELSIF(block_4_left < colSignal AND colSignal < block_4_right AND row_one_top < rowSignal AND rowSignal < row_one_bottom) THEN
+			ELSIF(block_on(4) = '1' AND block_left(4) < colSignal AND colSignal < block_right(4) AND row_one_top < rowSignal AND rowSignal < row_one_bottom) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			  -- block 5
-			ELSIF(block_5_left < colSignal AND colSignal < block_5_right AND row_one_top < rowSignal AND rowSignal < row_one_bottom) THEN
+			ELSIF(block_on(5) = '1' AND block_left(5) < colSignal AND colSignal < block_right(5) AND row_one_top < rowSignal AND rowSignal < row_one_bottom) THEN
 				  red_m <= (OTHERS => '1');
 				  green_m  <= (OTHERS => '1');
 				  blue_m <= (OTHERS => '1');
 			  -- block 6
-			ELSIF(block_6_left < colSignal AND colSignal < block_6_right AND row_one_top < rowSignal AND rowSignal < row_one_bottom) THEN
+			ELSIF(block_on(6) = '1' AND block_left(6) < colSignal AND colSignal < block_right(6) AND row_one_top < rowSignal AND rowSignal < row_one_bottom) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			  -- block 7
-			ELSIF(block_7_left < colSignal AND colSignal < block_7_right AND row_one_top < rowSignal AND rowSignal < row_one_bottom) THEN
+			ELSIF(block_on(7) = '1' AND block_left(7) < colSignal AND colSignal < block_right(7) AND row_one_top < rowSignal AND rowSignal < row_one_bottom) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			  -- block 8
-			ELSIF(block_8_left < colSignal AND colSignal < block_8_right AND row_one_top < rowSignal AND rowSignal < row_one_bottom) THEN
+			ELSIF(block_on(8) = '1' AND block_left(8) < colSignal AND colSignal < block_right(8) AND row_one_top < rowSignal AND rowSignal < row_one_bottom) THEN
 				  red_m <= (OTHERS => '1');
 				  green_m  <= (OTHERS => '1');
 				  blue_m <= (OTHERS => '1');
 			  -- block 9
-			ELSIF(block_9_left < colSignal AND colSignal < block_9_right AND row_one_top < rowSignal AND rowSignal < row_one_bottom) THEN
+			ELSIF(block_on(9) = '1' AND block_left(9) < colSignal AND colSignal < block_right(9) AND row_one_top < rowSignal AND rowSignal < row_one_bottom) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			  -- block 10
-			ELSIF(block_10_left < colSignal AND colSignal < block_10_right AND row_one_top < rowSignal AND rowSignal < row_one_bottom) THEN
+			ELSIF(block_on(10) = '1' AND block_left(10) < colSignal AND colSignal < block_right(10) AND row_one_top < rowSignal AND rowSignal < row_one_bottom) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			  -- block 11
-			ELSIF(block_11_left < colSignal AND colSignal < block_11_right AND row_one_top < rowSignal AND rowSignal < row_one_bottom) THEN
+			ELSIF(block_on(11) = '1' AND block_left(11) < colSignal AND colSignal < block_right(11) AND row_one_top < rowSignal AND rowSignal < row_one_bottom) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			  -- block 12
-			ELSIF(block_12_left < colSignal AND colSignal < block_12_right AND row_one_top < rowSignal AND rowSignal < row_one_bottom) THEN
+			ELSIF(block_on(12) = '1' AND block_left(12) < colSignal AND colSignal < block_right(12) AND row_one_top < rowSignal AND rowSignal < row_one_bottom) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			  -- block 13
-			ELSIF(block_13_left < colSignal AND colSignal < block_13_right AND row_one_top < rowSignal AND rowSignal < row_one_bottom) THEN
+			ELSIF(block_on(13) = '1' AND block_left(13) < colSignal AND colSignal < block_right(13) AND row_one_top < rowSignal AND rowSignal < row_one_bottom) THEN
 				  red_m <= (OTHERS => '1');
 				  green_m  <= (OTHERS => '1');
 				  blue_m <= (OTHERS => '1');
 			  -- block 14
-			ELSIF(block_14_left < colSignal AND colSignal < block_14_right AND row_one_top < rowSignal AND rowSignal < row_one_bottom) THEN
+			ELSIF(block_on(14) = '1' AND block_left(14) < colSignal AND colSignal < block_right(14) AND row_one_top < rowSignal AND rowSignal < row_one_bottom) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			  
 			-- block 15
-			ELSIF(block_1_left < colSignal AND colSignal < block_1_right AND row_two_top < rowSignal AND rowSignal < row_two_bottom) THEN
+			ELSIF(block_on(15) = '1' AND block_left(1) < colSignal AND colSignal < block_right(1) AND row_two_top < rowSignal AND rowSignal < row_two_bottom) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- block 16
-			ELSIF(block_2_left < colSignal AND colSignal < block_2_right AND row_two_top < rowSignal AND rowSignal < row_two_bottom) THEN
+			ELSIF(block_on(16) = '1' AND block_left(2) < colSignal AND colSignal < block_right(2) AND row_two_top < rowSignal AND rowSignal < row_two_bottom) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			  -- block 17
-			ELSIF(block_3_left < colSignal AND colSignal < block_3_right AND row_two_top < rowSignal AND rowSignal < row_two_bottom) THEN
+			ELSIF(block_on(17) = '1' AND block_left(3) < colSignal AND colSignal < block_right(3) AND row_two_top < rowSignal AND rowSignal < row_two_bottom) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			  -- block 18
-			ELSIF(block_4_left < colSignal AND colSignal < block_4_right AND row_two_top < rowSignal AND rowSignal < row_two_bottom) THEN
+			ELSIF(block_on(18) = '1' AND block_left(4) < colSignal AND colSignal < block_right(4) AND row_two_top < rowSignal AND rowSignal < row_two_bottom) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			  -- block 19
-			ELSIF(block_5_left < colSignal AND colSignal < block_5_right AND row_two_top < rowSignal AND rowSignal < row_two_bottom) THEN
+			ELSIF(block_on(19) = '1' AND block_left(5) < colSignal AND colSignal < block_right(5) AND row_two_top < rowSignal AND rowSignal < row_two_bottom) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			  -- block 20
-			ELSIF(block_6_left < colSignal AND colSignal < block_6_right AND row_two_top < rowSignal AND rowSignal < row_two_bottom) THEN
+			ELSIF(block_on(20) = '1' AND block_left(6) < colSignal AND colSignal < block_right(6) AND row_two_top < rowSignal AND rowSignal < row_two_bottom) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			  -- block 21
-			ELSIF(block_7_left < colSignal AND colSignal < block_7_right AND row_two_top < rowSignal AND rowSignal < row_two_bottom) THEN
+			ELSIF(block_on(21) = '1' AND block_left(7) < colSignal AND colSignal < block_right(7) AND row_two_top < rowSignal AND rowSignal < row_two_bottom) THEN
 				  red_m <= (OTHERS => '1');
 				  green_m  <= (OTHERS => '1');
 				  blue_m <= (OTHERS => '1');
 			  -- block 22
-			ELSIF(block_8_left < colSignal AND colSignal < block_8_right AND row_two_top < rowSignal AND rowSignal < row_two_bottom) THEN
+			ELSIF(block_on(22) = '1' AND block_left(8) < colSignal AND colSignal < block_right(8) AND row_two_top < rowSignal AND rowSignal < row_two_bottom) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			  -- block 23
-			ELSIF(block_9_left < colSignal AND colSignal < block_9_right AND row_two_top < rowSignal AND rowSignal < row_two_bottom) THEN
+			ELSIF(block_on(23) = '1' AND block_left(9) < colSignal AND colSignal < block_right(9) AND row_two_top < rowSignal AND rowSignal < row_two_bottom) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			  -- block 24
-			ELSIF(block_10_left < colSignal AND colSignal < block_10_right AND row_two_top < rowSignal AND rowSignal < row_two_bottom) THEN
+			ELSIF(block_on(24) = '1' AND block_left(10) < colSignal AND colSignal < block_right(10) AND row_two_top < rowSignal AND rowSignal < row_two_bottom) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			  -- block 25
-			ELSIF(block_11_left < colSignal AND colSignal < block_11_right AND row_two_top < rowSignal AND rowSignal < row_two_bottom) THEN
+			ELSIF(block_on(25) = '1' AND block_left(11) < colSignal AND colSignal < block_right(11) AND row_two_top < rowSignal AND rowSignal < row_two_bottom) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			  -- block 26
-			ELSIF(block_12_left < colSignal AND colSignal < block_12_right AND row_two_top < rowSignal AND rowSignal < row_two_bottom) THEN
+			ELSIF(block_on(26) = '1' AND block_left(12) < colSignal AND colSignal < block_right(12) AND row_two_top < rowSignal AND rowSignal < row_two_bottom) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			  -- block 27
-			ELSIF(block_13_left < colSignal AND colSignal < block_13_right AND row_two_top < rowSignal AND rowSignal < row_two_bottom) THEN
+			ELSIF(block_on(27) = '1' AND block_left(13) < colSignal AND colSignal < block_right(13) AND row_two_top < rowSignal AND rowSignal < row_two_bottom) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			  -- block 28
-			ELSIF(block_14_left < colSignal AND colSignal < block_14_right AND row_two_top < rowSignal AND rowSignal < row_two_bottom) THEN
+			ELSIF(block_on(28) = '1' AND block_left(14) < colSignal AND colSignal < block_right(14) AND row_two_top < rowSignal AND rowSignal < row_two_bottom) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
