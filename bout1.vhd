@@ -47,12 +47,12 @@ entity bout1 is
 		-- internal clock
 		max10_clk      :    IN STD_LOGIC; -- ALSO pixel clock for VGA mode being used
 
-		hex5         : OUT STD_LOGIC_VECTOR(6 downto 0);
-		hex4         : OUT STD_LOGIC_VECTOR(6 downto 0);
-		hex3         : OUT STD_LOGIC_VECTOR(6 downto 0);
-		hex2         : OUT STD_LOGIC_VECTOR(6 downto 0);
-		hex1         : OUT STD_LOGIC_VECTOR(6 downto 0);
-		hex0         : OUT STD_LOGIC_VECTOR(6 downto 0);
+		hex5         : OUT STD_LOGIC_VECTOR(6 downto 0) := "1111111";
+		hex4         : OUT STD_LOGIC_VECTOR(6 downto 0) := "1111111";
+		hex3         : OUT STD_LOGIC_VECTOR(6 downto 0) := "1111111";
+		hex2         : OUT STD_LOGIC_VECTOR(6 downto 0) := "1111111";
+		hex1         : OUT STD_LOGIC_VECTOR(6 downto 0) := "1111111";
+		hex0         : OUT STD_LOGIC_VECTOR(6 downto 0) := "1111111";
 		
 		
 		-- set to CLK on rotary encoder as IO4
@@ -76,6 +76,14 @@ entity bout1 is
 end bout1;
 
 ARCHITECTURE breakout_1p OF bout1 IS
+
+	 -- 7-segment display component
+    component bcd_7segment is 
+        port(
+            BCDin : in STD_LOGIC_VECTOR (3 downto 0);
+            Seven_Segment : out STD_LOGIC_VECTOR (6 downto 0)
+        );
+    end component;
 
 	component vga_pll_25_175 is 
 	
@@ -152,12 +160,36 @@ signal reset_location : std_logic := '0';
 type block_on_array is array(1 to 28) of std_logic;
 signal block_on : block_on_array := (1 to 28 => '1');
 
+-- signals for displaying score to seven segment displays 2 downto 0
+-- note: maximum score is 999
+signal score             : integer := 0;
+signal hex_0_score     : std_logic_vector (3 downto 0) := "0000";
+signal hex_1_score     : std_logic_vector (3 downto 0) := "0000";
+signal hex_2_score    : std_logic_vector (3 downto 0) := "0000";
+
+
+-- signals for displaying number of lives to seven segment displays 5 downto 4
+signal lives          : integer := 3;
+signal hex_5_lives    : std_logic_vector (3 downto 0) := "0000";
+signal hex_4_lives    : std_logic_vector (3 downto 0) := "0000";
+
 BEGIN
 
 -- movement for the ball
 ball_direction : process(pll_OUT_to_vga_controller_IN)
 begin
 	if(rising_edge(pll_OUT_to_vga_controller_IN)) then 
+	
+		  -- ones place to be displayed on hex0
+        hex_0_score <= std_logic_vector(to_unsigned(((score mod 1000) mod 10), hex_0_score'length));
+
+        -- tens place to be displayed on hex1
+        hex_1_score <= std_logic_vector(to_unsigned((((score mod 1000) - (score mod 10)) / 10), hex_1_score'length));
+
+        -- hundreds place to be displayed on hex 2
+        hex_2_score <= std_logic_vector(to_unsigned((((score mod 1000) - (score mod 100)) / 100), hex_2_score'length));
+	
+	
 		 --move south-west by 1 pixel every 0.05 seconds
 		 
 		 -- if ball hits left border at 75 pixels, invert direction from left to right
@@ -170,8 +202,22 @@ begin
 		 elsif (ball_top <= 75) then
 			up_down <= '1';
 		 -- if ball hits bottom "pit" at 480 pixels, reset ball to initial position
+		 -- AND does random direction on next ball placement
 		 elsif (ball_bottom >= 480) then
 			reset_location <= '1';
+			
+				-- on next ball "serve"
+			-- go down and.....
+			up_down <= '1';
+			-- move left
+			IF (max10_clk = '0') THEN
+				left_right <= '0';
+			-- move right
+			ELSIF (max10_clk = '1') THEN
+				left_right <= '1';
+			ELSE
+				left_right <= '0';
+			END IF;
 			
 		 -- if hit the top of paddle and one of the ball's sides is between the limits of the paddle
 		 elsif ( ball_bottom = paddle_top AND ((x_left <= ball_left AND ball_left <= x_right) OR (x_left <= ball_right AND ball_right <= x_right)) ) then
@@ -198,252 +244,308 @@ begin
 				-- rebound up
 				up_down <= '0';
 				block_on(1) <= '0';
+				score <= score + 1;
 			elsif ( block_on(1) = '1' AND ball_top = row_one_bottom AND ((block_left(1) <= ball_left AND ball_left <= block_right(1)) OR (block_left(1) <= ball_right AND ball_right <= block_right(1))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(1) <= '0';
+				score <= score + 1;
 			elsif ( block_on(1) = '1' AND ball_left = block_right(1) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(1) <= '0';
+				score <= score + 1;
 			elsif ( block_on(1) = '1' AND ball_right = block_left(1) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(1) <= '0';
+				score <= score + 1;
 			
 		-- BLOCK 2
 			elsif ( block_on(2) = '1' AND ball_bottom = row_one_top AND ((block_left(2) <= ball_left AND ball_left <= block_right(2)) OR (block_left(2) <= ball_right AND ball_right <= block_right(2))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(2) <= '0';
+				score <= score + 1;
 			elsif ( block_on(2) = '1' AND ball_top = row_one_bottom AND ((block_left(2) <= ball_left AND ball_left <= block_right(2)) OR (block_left(2) <= ball_right AND ball_right <= block_right(2))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(2) <= '0';
+				score <= score + 1;
 			elsif ( block_on(2) = '1' AND ball_left = block_right(2) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(2) <= '0';
+				score <= score + 1;
 			elsif ( block_on(2) = '1' AND ball_right = block_left(2) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(2) <= '0';
+				score <= score + 1;
 
 		-- BLOCK 3
 			elsif ( block_on(3) = '1' AND ball_bottom = row_one_top AND ((block_left(3) <= ball_left AND ball_left <= block_right(3)) OR (block_left(3) <= ball_right AND ball_right <= block_right(3))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(3) <= '0';
+				score <= score + 1;
 			elsif ( block_on(3) = '1' AND ball_top = row_one_bottom AND ((block_left(3) <= ball_left AND ball_left <= block_right(3)) OR (block_left(3) <= ball_right AND ball_right <= block_right(3))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(3) <= '0';
+				score <= score + 1;
 			elsif ( block_on(3) = '1' AND ball_left = block_right(3) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(3) <= '0';
+				score <= score + 1;
 			elsif ( block_on(3) = '1' AND ball_right = block_left(3) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(3) <= '0';
+				score <= score + 1;
 
 		-- BLOCK 4
 			elsif ( block_on(4) = '1' AND ball_bottom = row_one_top AND ((block_left(4) <= ball_left AND ball_left <= block_right(4)) OR (block_left(4) <= ball_right AND ball_right <= block_right(4))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(4) <= '0';
+				score <= score + 1;
 			elsif ( block_on(4) = '1' AND ball_top = row_one_bottom AND ((block_left(4) <= ball_left AND ball_left <= block_right(4)) OR (block_left(4) <= ball_right AND ball_right <= block_right(4))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(4) <= '0';
+				score <= score + 1;
 			elsif ( block_on(4) = '1' AND ball_left = block_right(4) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(4) <= '0';
+				score <= score + 1;
 			elsif ( block_on(4) = '1' AND ball_right = block_left(4) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(4) <= '0';
+				score <= score + 1;
 
 		-- BLOCK 5
 			elsif ( block_on(5) = '1' AND ball_bottom = row_one_top AND ((block_left(5) <= ball_left AND ball_left <= block_right(5)) OR (block_left(5) <= ball_right AND ball_right <= block_right(5))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(5) <= '0';
+				score <= score + 1;
 			elsif ( block_on(5) = '1' AND ball_top = row_one_bottom AND ((block_left(5) <= ball_left AND ball_left <= block_right(5)) OR (block_left(5) <= ball_right AND ball_right <= block_right(5))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(5) <= '0';
+				score <= score + 1;
 			elsif ( block_on(5) = '1' AND ball_left = block_right(5) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(5) <= '0';
+				score <= score + 1;
 			elsif ( block_on(5) = '1' AND ball_right = block_left(5) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(5) <= '0';
+				score <= score + 1;
 
 		-- BLOCK 6
 			elsif ( block_on(6) = '1' AND ball_bottom = row_one_top AND ((block_left(6) <= ball_left AND ball_left <= block_right(6)) OR (block_left(6) <= ball_right AND ball_right <= block_right(6))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(6) <= '0';
+				score <= score + 1;
 			elsif ( block_on(6) = '1' AND ball_top = row_one_bottom AND ((block_left(6) <= ball_left AND ball_left <= block_right(6)) OR (block_left(6) <= ball_right AND ball_right <= block_right(6))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(6) <= '0';
+				score <= score + 1;
 			elsif ( block_on(6) = '1' AND ball_left = block_right(6) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(6) <= '0';
+				score <= score + 1;
 			elsif ( block_on(6) = '1' AND ball_right = block_left(6) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(6) <= '0';
+				score <= score + 1;
 
 		-- BLOCK 7
 			elsif ( block_on(7) = '1' AND ball_bottom = row_one_top AND ((block_left(7) <= ball_left AND ball_left <= block_right(7)) OR (block_left(7) <= ball_right AND ball_right <= block_right(7))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(7) <= '0';
+				score <= score + 1;
 			elsif ( block_on(7) = '1' AND ball_top = row_one_bottom AND ((block_left(7) <= ball_left AND ball_left <= block_right(7)) OR (block_left(7) <= ball_right AND ball_right <= block_right(7))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(7) <= '0';
+				score <= score + 1;
 			elsif ( block_on(7) = '1' AND ball_left = block_right(7) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(7) <= '0';
+				score <= score + 1;
 			elsif ( block_on(7) = '1' AND ball_right = block_left(7) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(7) <= '0';
+				score <= score + 1;
 
 		-- BLOCK 8
 			elsif ( block_on(8) = '1' AND ball_bottom = row_one_top AND ((block_left(8) <= ball_left AND ball_left <= block_right(8)) OR (block_left(8) <= ball_right AND ball_right <= block_right(8))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(8) <= '0';
+				score <= score + 1;
 			elsif ( block_on(8) = '1' AND ball_top = row_one_bottom AND ((block_left(8) <= ball_left AND ball_left <= block_right(8)) OR (block_left(8) <= ball_right AND ball_right <= block_right(8))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(8) <= '0';
+				score <= score + 1;
 			elsif ( block_on(8) = '1' AND ball_left = block_right(8) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(8) <= '0';
+				score <= score + 1;
 			elsif ( block_on(8) = '1' AND ball_right = block_left(8) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(8) <= '0';
+				score <= score + 1;
 
 		-- BLOCK 9
 			elsif ( block_on(9) = '1' AND ball_bottom = row_one_top AND ((block_left(9) <= ball_left AND ball_left <= block_right(9)) OR (block_left(9) <= ball_right AND ball_right <= block_right(9))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(9) <= '0';
+				score <= score + 1;
 			elsif ( block_on(9) = '1' AND ball_top = row_one_bottom AND ((block_left(9) <= ball_left AND ball_left <= block_right(9)) OR (block_left(9) <= ball_right AND ball_right <= block_right(9))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(9) <= '0';
+				score <= score + 1;
 			elsif ( block_on(9) = '1' AND ball_left = block_right(9) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(9) <= '0';
+				score <= score + 1;
 			elsif ( block_on(9) = '1' AND ball_right = block_left(9) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(9) <= '0';
+				score <= score + 1;
 
 		-- BLOCK 10
 			elsif ( block_on(10) = '1' AND ball_bottom = row_one_top AND ((block_left(10) <= ball_left AND ball_left <= block_right(10)) OR (block_left(10) <= ball_right AND ball_right <= block_right(10))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(10) <= '0';
+				score <= score + 1;
 			elsif ( block_on(10) = '1' AND ball_top = row_one_bottom AND ((block_left(10) <= ball_left AND ball_left <= block_right(10)) OR (block_left(10) <= ball_right AND ball_right <= block_right(10))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(10) <= '0';
+				score <= score + 1;
 			elsif ( block_on(10) = '1' AND ball_left = block_right(10) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(10) <= '0';
+				score <= score + 1;
 			elsif ( block_on(10) = '1'AND ball_right = block_left(10) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(10) <= '0';
+				score <= score + 1;
 
 		-- BLOCK 11
 			elsif ( block_on(11) = '1' AND ball_bottom = row_one_top AND ((block_left(11) <= ball_left AND ball_left <= block_right(11)) OR (block_left(11) <= ball_right AND ball_right <= block_right(11))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(11) <= '0';
+				score <= score + 1;
 			elsif ( block_on(11) = '1' AND ball_top = row_one_bottom AND ((block_left(11) <= ball_left AND ball_left <= block_right(11)) OR (block_left(11) <= ball_right AND ball_right <= block_right(11))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(11) <= '0';
+				score <= score + 1;
 			elsif ( block_on(11) = '1' AND ball_left = block_right(11) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(11) <= '0';
+				score <= score + 1;
 			elsif ( block_on(11) = '1' AND ball_right = block_left(11) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(11) <= '0';
+				score <= score + 1;
 
 		-- BLOCK 12
 			elsif ( block_on(12) = '1' AND ball_bottom = row_one_top AND ((block_left(12) <= ball_left AND ball_left <= block_right(12)) OR (block_left(12) <= ball_right AND ball_right <= block_right(12))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(12) <= '0';
+				score <= score + 1;
 			elsif ( block_on(12) = '1' AND ball_top = row_one_bottom AND ((block_left(12) <= ball_left AND ball_left <= block_right(12)) OR (block_left(12) <= ball_right AND ball_right <= block_right(12))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(12) <= '0';
+				score <= score + 1;
 			elsif ( block_on(12) = '1' AND ball_left = block_right(12) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(12) <= '0';
+				score <= score + 1;
 			elsif ( block_on(12) = '1' AND ball_right = block_left(12) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(12) <= '0';
+				score <= score + 1;
 
 		-- BLOCK 13
 			elsif ( block_on(13) = '1' AND ball_bottom = row_one_top AND ((block_left(13) <= ball_left AND ball_left <= block_right(13)) OR (block_left(13) <= ball_right AND ball_right <= block_right(13))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(13) <= '0';
+				score <= score + 1;
 			elsif ( block_on(13) = '1' AND ball_top = row_one_bottom AND ((block_left(13) <= ball_left AND ball_left <= block_right(13)) OR (block_left(13) <= ball_right AND ball_right <= block_right(13))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(13) <= '0';
+				score <= score + 1;
 			elsif ( block_on(13) = '1' AND ball_left = block_right(13) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(13) <= '0';
+				score <= score + 1;
 			elsif ( block_on(13) = '1' AND ball_right = block_left(13) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(13) <= '0';
+				score <= score + 1;
 
 		-- BLOCK 28
 			elsif ( block_on(14) = '1' AND ball_bottom = row_one_top AND ((block_left(14) <= ball_left AND ball_left <= block_right(14)) OR (block_left(14) <= ball_right AND ball_right <= block_right(14))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(14) <= '0';
+				score <= score + 1;
 			elsif ( block_on(14) = '1' AND ball_top = row_one_bottom AND ((block_left(14) <= ball_left AND ball_left <= block_right(14)) OR (block_left(14) <= ball_right AND ball_right <= block_right(14))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(14) <= '0';
+				score <= score + 1;
 			elsif ( block_on(14) = '1' AND ball_left = block_right(14) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(14) <= '0';
+				score <= score + 1;
 			elsif ( block_on(14) = '1' AND ball_right = block_left(14) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(14) <= '0';
+				score <= score + 1;
 
 		
 		-- BLOCK 15
@@ -451,252 +553,309 @@ begin
 				-- rebound up
 				up_down <= '0';
 				block_on(15) <= '0';
+				score <= score + 1;
 			elsif ( block_on(15) = '1' AND ball_top = row_two_bottom AND ((block_left(1) <= ball_left AND ball_left <= block_right(1)) OR (block_left(1) <= ball_right AND ball_right <= block_right(1))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(15) <= '0';
+				score <= score + 1;
 			elsif ( block_on(15) = '1' AND ball_left = block_right(1) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(15) <= '0';
+				score <= score + 1;
 			elsif ( block_on(15) = '1' AND ball_right = block_left(1) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(15) <= '0';
+				score <= score + 1;
 			
 		-- BLOCK 16
 			elsif ( block_on(16) = '1' AND ball_bottom = row_two_top AND ((block_left(2) <= ball_left AND ball_left <= block_right(2)) OR (block_left(2) <= ball_right AND ball_right <= block_right(2))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(16) <= '0';
+				score <= score + 1;
 			elsif ( block_on(16) = '1' AND ball_top = row_two_bottom AND ((block_left(2) <= ball_left AND ball_left <= block_right(2)) OR (block_left(2) <= ball_right AND ball_right <= block_right(2))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(16) <= '0';
+				score <= score + 1;
 			elsif ( block_on(16) = '1' AND ball_left = block_right(2) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(16) <= '0';
+				score <= score + 1;
 			elsif ( block_on(16) = '1' AND ball_right = block_left(2) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(16) <= '0';
+				score <= score + 1;
 
 		-- BLOCK 17
 			elsif ( block_on(17) = '1' AND ball_bottom = row_two_top AND ((block_left(3) <= ball_left AND ball_left <= block_right(3)) OR (block_left(3) <= ball_right AND ball_right <= block_right(3))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(17) <= '0';
+				score <= score + 1;
 			elsif ( block_on(17) = '1' AND ball_top = row_two_bottom AND ((block_left(3) <= ball_left AND ball_left <= block_right(3)) OR (block_left(3) <= ball_right AND ball_right <= block_right(3))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(17) <= '0';
+				score <= score + 1;
 			elsif ( block_on(17) = '1' AND ball_left = block_right(3) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(17) <= '0';
+				score <= score + 1;
 			elsif ( block_on(17) = '1' AND ball_right = block_left(3) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(17) <= '0';
+				score <= score + 1;
 
 		-- BLOCK 18
 			elsif ( block_on(18) = '1' AND ball_bottom = row_two_top AND ((block_left(4) <= ball_left AND ball_left <= block_right(4)) OR (block_left(4) <= ball_right AND ball_right <= block_right(4))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(18) <= '0';
+				score <= score + 1;
 			elsif ( block_on(18) = '1' AND ball_top = row_two_bottom AND ((block_left(4) <= ball_left AND ball_left <= block_right(4)) OR (block_left(4) <= ball_right AND ball_right <= block_right(4))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(18) <= '0';
+				score <= score + 1;
 			elsif ( block_on(18) = '1' AND ball_left = block_right(4) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(18) <= '0';
+				score <= score + 1;
 			elsif ( block_on(18) = '1' AND ball_right = block_left(4) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(18) <= '0';
+				score <= score + 1;
 
 		-- BLOCK 19
 			elsif ( block_on(19) = '1' AND ball_bottom = row_two_top AND ((block_left(5) <= ball_left AND ball_left <= block_right(5)) OR (block_left(5) <= ball_right AND ball_right <= block_right(5))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(19) <= '0';
+				score <= score + 1;
 			elsif ( block_on(19) = '1' AND ball_top = row_two_bottom AND ((block_left(5) <= ball_left AND ball_left <= block_right(5)) OR (block_left(5) <= ball_right AND ball_right <= block_right(5))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(19) <= '0';
+				score <= score + 1;
 			elsif ( block_on(19) = '1' AND ball_left = block_right(5) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(19) <= '0';
+				score <= score + 1;
 			elsif ( block_on(19) = '1' AND ball_right = block_left(5) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(19) <= '0';
+				score <= score + 1;
 
 		-- BLOCK 20
 			elsif ( block_on(20) = '1' AND ball_bottom = row_two_top AND ((block_left(6) <= ball_left AND ball_left <= block_right(6)) OR (block_left(6) <= ball_right AND ball_right <= block_right(6))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(20) <= '0';
+				score <= score + 1;
 			elsif ( block_on(20) = '1' AND ball_top = row_two_bottom AND ((block_left(6) <= ball_left AND ball_left <= block_right(6)) OR (block_left(6) <= ball_right AND ball_right <= block_right(6))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(20) <= '0';
+				score <= score + 1;
 			elsif ( block_on(20) = '1' AND ball_left = block_right(6) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(20) <= '0';
+				score <= score + 1;
 			elsif ( block_on(20) = '1' AND ball_right = block_left(6) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(20) <= '0';
+				score <= score + 1;
 
 		-- BLOCK 21
 			elsif ( block_on(21) = '1' AND ball_bottom = row_two_top AND ((block_left(7) <= ball_left AND ball_left <= block_right(7)) OR (block_left(7) <= ball_right AND ball_right <= block_right(7))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(21) <= '0';
+				score <= score + 1;
 			elsif ( block_on(21) = '1' AND ball_top = row_two_bottom AND ((block_left(7) <= ball_left AND ball_left <= block_right(7)) OR (block_left(7) <= ball_right AND ball_right <= block_right(7))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(21) <= '0';
+				score <= score + 1;
 			elsif ( block_on(21) = '1' AND ball_left = block_right(7) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(21) <= '0';
+				score <= score + 1;
 			elsif ( block_on(21) = '1' AND ball_right = block_left(7) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(21) <= '0';
+				score <= score + 1;
 
 		-- BLOCK 22
 			elsif ( block_on(22) = '1' AND ball_bottom = row_two_top AND ((block_left(8) <= ball_left AND ball_left <= block_right(8)) OR (block_left(8) <= ball_right AND ball_right <= block_right(8))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(22) <= '0';
+				score <= score + 1;
 			elsif ( block_on(22) = '1' AND ball_top = row_two_bottom AND ((block_left(8) <= ball_left AND ball_left <= block_right(8)) OR (block_left(8) <= ball_right AND ball_right <= block_right(8))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(22) <= '0';
+				score <= score + 1;
 			elsif ( block_on(22) = '1' AND ball_left = block_right(8) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(22) <= '0';
+				score <= score + 1;
 			elsif ( block_on(22) = '1' AND ball_right = block_left(8) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(22) <= '0';
+				score <= score + 1;
 
 		-- BLOCK 23
 			elsif ( block_on(23) = '1' AND ball_bottom = row_two_top AND ((block_left(9) <= ball_left AND ball_left <= block_right(9)) OR (block_left(9) <= ball_right AND ball_right <= block_right(9))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(23) <= '0';
+				score <= score + 1;
 			elsif ( block_on(23) = '1' AND ball_top = row_two_bottom AND ((block_left(9) <= ball_left AND ball_left <= block_right(9)) OR (block_left(9) <= ball_right AND ball_right <= block_right(9))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(23) <= '0';
+				score <= score + 1;
 			elsif ( block_on(23) = '1' AND ball_left = block_right(9) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(23) <= '0';
+				score <= score + 1;
 			elsif ( block_on(23) = '1' AND ball_right = block_left(9) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(23) <= '0';
+				score <= score + 1;
 
 		-- BLOCK 24
 			elsif ( block_on(24) = '1' AND ball_bottom = row_two_top AND ((block_left(10) <= ball_left AND ball_left <= block_right(10)) OR (block_left(10) <= ball_right AND ball_right <= block_right(10))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(24) <= '0';
+				score <= score + 1;
 			elsif ( block_on(24) = '1' AND ball_top = row_two_bottom AND ((block_left(10) <= ball_left AND ball_left <= block_right(10)) OR (block_left(10) <= ball_right AND ball_right <= block_right(10))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(24) <= '0';
+				score <= score + 1;
 			elsif ( block_on(24) = '1' AND ball_left = block_right(10) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(24) <= '0';
+				score <= score + 1;
 			elsif ( block_on(24) = '1'AND ball_right = block_left(10) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(24) <= '0';
+				score <= score + 1;
 
 		-- BLOCK 25
 			elsif ( block_on(25) = '1' AND ball_bottom = row_two_top AND ((block_left(11) <= ball_left AND ball_left <= block_right(11)) OR (block_left(11) <= ball_right AND ball_right <= block_right(11))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(25) <= '0';
+				score <= score + 1;
 			elsif ( block_on(25) = '1' AND ball_top = row_two_bottom AND ((block_left(11) <= ball_left AND ball_left <= block_right(11)) OR (block_left(11) <= ball_right AND ball_right <= block_right(11))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(25) <= '0';
+				score <= score + 1;
 			elsif ( block_on(25) = '1' AND ball_left = block_right(11) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(25) <= '0';
+				score <= score + 1;
 			elsif ( block_on(25) = '1' AND ball_right = block_left(11) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(25) <= '0';
+				score <= score + 1;
 
 		-- BLOCK 26
 			elsif ( block_on(26) = '1' AND ball_bottom = row_two_top AND ((block_left(12) <= ball_left AND ball_left <= block_right(12)) OR (block_left(12) <= ball_right AND ball_right <= block_right(12))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(26) <= '0';
+				score <= score + 1;
 			elsif ( block_on(26) = '1' AND ball_top = row_two_bottom AND ((block_left(12) <= ball_left AND ball_left <= block_right(12)) OR (block_left(12) <= ball_right AND ball_right <= block_right(12))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(26) <= '0';
+				score <= score + 1;
 			elsif ( block_on(26) = '1' AND ball_left = block_right(12) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(26) <= '0';
+				score <= score + 1;
 			elsif ( block_on(26) = '1' AND ball_right = block_left(12) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(26) <= '0';
+				score <= score + 1;
 
 		-- BLOCK 27
 			elsif ( block_on(27) = '1' AND ball_bottom = row_two_top AND ((block_left(13) <= ball_left AND ball_left <= block_right(13)) OR (block_left(13) <= ball_right AND ball_right <= block_right(13))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(27) <= '0';
+				score <= score + 1;
 			elsif ( block_on(27) = '1' AND ball_top = row_two_bottom AND ((block_left(13) <= ball_left AND ball_left <= block_right(13)) OR (block_left(13) <= ball_right AND ball_right <= block_right(13))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(27) <= '0';
+				score <= score + 1;
 			elsif ( block_on(27) = '1' AND ball_left = block_right(13) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(27) <= '0';
+				score <= score + 1;
 			elsif ( block_on(27) = '1' AND ball_right = block_left(13) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(27) <= '0';
+				score <= score + 1;
 
 		-- BLOCK 28
 			elsif ( block_on(28) = '1' AND ball_bottom = row_two_top AND ((block_left(14) <= ball_left AND ball_left <= block_right(14)) OR (block_left(14) <= ball_right AND ball_right <= block_right(14))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(28) <= '0';
+				score <= score + 1;
 			elsif ( block_on(28) = '1' AND ball_top = row_two_bottom AND ((block_left(14) <= ball_left AND ball_left <= block_right(14)) OR (block_left(14) <= ball_right AND ball_right <= block_right(14))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(28) <= '0';
+				score <= score + 1;
 			elsif ( block_on(28) = '1' AND ball_left = block_right(14) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(28) <= '0';
+				score <= score + 1;
 			elsif ( block_on(28) = '1' AND ball_right = block_left(14) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(28) <= '0';
+				score <= score + 1;
+				
 				
 		 else
 			reset_location <= '0';
@@ -708,6 +867,12 @@ ball_movement : process(ball_clk)
 begin
 
 IF(rising_edge(ball_clk)) THEN
+-- lives ones place to be displayed on hex4
+hex_4_lives <= std_logic_vector(to_unsigned(((lives) mod 10), hex_4_lives'length));
+
+-- lives tens place to be displayed on hex5
+hex_5_lives <= std_logic_vector(to_unsigned((((lives mod 100) - (lives mod 10)) / 10), hex_5_lives'length));
+
 	-- if ball has not fallen in the "pit"
 	if (reset_location = '0') then
 		-- moving left
@@ -735,6 +900,7 @@ IF(rising_edge(ball_clk)) THEN
 		ball_bottom <= 160;
 		ball_left <= 100;
 		ball_right <= 105;
+		lives <= lives - 1;
 	end if;
 END IF;
 end process;	
@@ -1000,4 +1166,13 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 	U2	:	vga_controller port map(pll_OUT_to_vga_controller_IN, reset_n_m, h_sync_m, v_sync_m, dispEn, colSignal, rowSignal, open, open);
 	--U3	:	hw_image_generator port map(dispEn, rowSignal, colSignal, red_m, green_m, blue_m);
   
+  -- display score to seven segments 2 downto 0
+    UScore0: bcd_7segment port map(hex_2_score, hex2);
+    UScore1: bcd_7segment port map(hex_1_score, hex1);
+    UScore2: bcd_7segment port map(hex_0_score, hex0);
+
+    -- display lives to seven segements 5 downto 4
+    ULives0: bcd_7segment port map(hex_5_lives, hex5);
+    ULives1: bcd_7segment port map(hex_4_lives, hex4);
+	 
 end breakout_1p;
