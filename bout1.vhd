@@ -70,7 +70,8 @@ entity bout1 is
 		
 		red_m      :  OUT  STD_LOGIC_VECTOR(7 DOWNTO 0) := (OTHERS => '0');  --red magnitude output to DAC
 		green_m    :  OUT  STD_LOGIC_VECTOR(7 DOWNTO 0) := (OTHERS => '0');  --green magnitude output to DAC
-		blue_m     :  OUT  STD_LOGIC_VECTOR(7 DOWNTO 0) := (OTHERS => '0') --blue magnitude output to DAC
+		blue_m     :  OUT  STD_LOGIC_VECTOR(7 DOWNTO 0) := (OTHERS => '0'); --blue magnitude output to DAC
+		key0 :in std_logic
 	);
 
 end bout1;
@@ -176,9 +177,17 @@ signal hex_4_lives    : std_logic_vector (3 downto 0) := "0000";
 BEGIN
 
 -- movement for the ball
-ball_direction : process(pll_OUT_to_vga_controller_IN)
+ball_direction : process(pll_OUT_to_vga_controller_IN,key0)
 begin
-	if(rising_edge(pll_OUT_to_vga_controller_IN)) then 
+
+	if (key0 = '0') then  -- added aync reset fot ball_direction
+  
+      reset_location <= '0'; --reset location to 0 becasause key0 does this, shouldnt intefere with the rest of the process
+      block_on <= (others => '1'); --turn on all the blocks hitboxes 
+		--wondering if i need to do something about the direction becasue it spawns in the top left
+		
+		
+	elsif(rising_edge(pll_OUT_to_vga_controller_IN)) then 
 	
 		  -- ones place to be displayed on hex0
         hex_0_score <= std_logic_vector(to_unsigned(((score mod 1000) mod 10), hex_0_score'length));
@@ -863,15 +872,27 @@ begin
 	end if;
 end process;
 
-ball_movement : process(ball_clk)
+ball_movement : process(ball_clk,key0)
 begin
+if (key0 = '0') then  -- added async reset for ball movemnt
+      
+      ball_top    <= 155; --reset ball postion
+      ball_bottom <= 160;
+      ball_left   <= 100;
+      ball_right  <= 105;
+		
+      lives       <= 3; --reset lives? not sure about this
+		--do i need to reset the ball dirrection?
+      
 
+else
 IF(rising_edge(ball_clk)) THEN
 -- lives ones place to be displayed on hex4
 hex_4_lives <= std_logic_vector(to_unsigned(((lives) mod 10), hex_4_lives'length));
 
 -- lives tens place to be displayed on hex5
 hex_5_lives <= std_logic_vector(to_unsigned((((lives mod 100) - (lives mod 10)) / 10), hex_5_lives'length));
+
 
 	-- if ball has not fallen in the "pit"
 	if (reset_location = '0') then
@@ -901,6 +922,7 @@ hex_5_lives <= std_logic_vector(to_unsigned((((lives mod 100) - (lives mod 10)) 
 		ball_left <= 100;
 		ball_right <= 105;
 		lives <= lives - 1;
+	end if;
 	end if;
 END IF;
 end process;	
@@ -932,8 +954,17 @@ prescale_clock : process(max10_clk)
         end if;
 end process;
 
-rotary_encoder: process(encode_clk)
+rotary_encoder: process(encode_clk,key0)
 		 begin
+		 
+		 
+			if (key0 <='0') then --added async reset 
+				x_left <= 295; --sets the paddle to its default location
+				x_right <= 345;
+				
+				
+				
+			else	
 			  if rising_edge(encode_clk) then
 					-- Sample encoder inputs
 					A_curr <= Arduino_IO4;
@@ -967,6 +998,7 @@ rotary_encoder: process(encode_clk)
 					-- Update previous values
 					A_prev <= A_curr;
 					B_prev <= B_curr;
+			  end if;
 			  end if;
  end process;
 
@@ -1160,6 +1192,10 @@ display: PROCESS(dispEn, rowSignal, colSignal)
     END IF;
   
   END PROCESS;
+  
+  
+
+
 
 -- Just need 3 components for VGA system 
 	U1	:	vga_pll_25_175 port map(max10_clk, pll_OUT_to_vga_controller_IN);
