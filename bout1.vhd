@@ -782,7 +782,9 @@ if (key0 = '0') then  -- added async reset for ball movemnt
 		
 		-- reset lives
       hex_4_lives <= "0011";
-
+		
+		-- reset game over loss
+		game_over_loss <= '0';
 		--do i need to reset the ball dirrection?
       
 
