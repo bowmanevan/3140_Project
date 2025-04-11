@@ -181,11 +181,7 @@ BEGIN
 ball_direction : process(pll_OUT_to_vga_controller_IN,key0)
 begin
 
-	if (key0 = '0') then  -- added aync reset fot ball_direction
-		
-		-- remove this for test after completion
-		hex_5_lives <= "0000";
-		
+	if (key0 = '0') then  -- added aync reset fot ball_direction		
 		
 		-- reset score
 		hex_2_score <= "0000";
@@ -210,26 +206,23 @@ begin
 		
 	elsif(rising_edge(pll_OUT_to_vga_controller_IN)) then 
 	
-		-- logic for score counter
-		if((game_over_win = '1') or (game_over_loss = '1')) then
+		-- NEED TO IMPLEMENT THIS LOGIC
+		--if((game_over_win = '1') or (game_over_loss = '1')) then
 			-- pause game
-		hex_5_lives <= "1111";	
 		
-		-- else, proceed as normal
-		else
-			if(hex_0_score >= "1001") then
-				hex_0_score <= (others => '0');
-				hex_1_score <= std_logic_vector(unsigned(hex_1_score) + unsigned(add_val));
-			end if;
-			
-			if((hex_0_score >= "1001") and (hex_1_score >= "1001")) then
-				hex_1_score <= (others => '0');
-				hex_2_score <= std_logic_vector(unsigned(hex_2_score) + unsigned(add_val));	
-			end if;
+		-- logic for score counter
+		if(hex_0_score >= "1001") then
+			hex_0_score <= (others => '0');
+			hex_1_score <= std_logic_vector(unsigned(hex_1_score) + unsigned(add_val));
+		end if;
 		
-			if((hex_0_score >= "1000") and (hex_1_score >= "1001") and (hex_2_score >= "1001")) then 
-				game_over_win <= '1';	-- stop game if this condition becomes 1
-			end if;
+		if((hex_0_score >= "1001") and (hex_1_score >= "1001")) then
+			hex_1_score <= (others => '0');
+			hex_2_score <= std_logic_vector(unsigned(hex_2_score) + unsigned(add_val));	
+		end if;
+	
+		if((hex_0_score >= "1000") and (hex_1_score >= "1001") and (hex_2_score >= "1001")) then 
+			game_over_win <= '1';	-- stop game if this condition becomes 1
 		end if;
 	
 		 --move south-west by 1 pixel every 0.05 seconds
@@ -874,7 +867,6 @@ if (key0 = '0') then  -- added async reset for ball movemnt
 		
 		-- reset game over loss
 		game_over_loss <= '0';
-		--do i need to reset the ball dirrection?
       
 
 else
