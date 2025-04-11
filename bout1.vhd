@@ -182,7 +182,12 @@ ball_direction : process(pll_OUT_to_vga_controller_IN,key0)
 begin
 
 	if (key0 = '0') then  -- added aync reset fot ball_direction
-  
+		
+		-- reset score
+		hex_2_score <= "0000";
+		hex_1_score <= "0000";
+		hex_0_score <= "0000";
+		
       reset_location <= '0'; --reset location to 0 becasause key0 does this, shouldnt intefere with the rest of the process
       block_on <= (others => '1'); --turn on all the blocks hitboxes 
 		--wondering if i need to do something about the direction becasue it spawns in the top left
@@ -202,7 +207,7 @@ begin
 	elsif(rising_edge(pll_OUT_to_vga_controller_IN)) then 
 	
 		-- logic for score counter
-		if((game_over_win /= '1') and (game_over_loss /= '1')) then
+		if((game_over_win /= '1') or (game_over_loss /= '1')) then
 				if(hex_0_score >= "1001") then
 					hex_0_score <= (others => '0');
 					hex_1_score <= std_logic_vector(unsigned(hex_1_score) + unsigned(add_val));
@@ -775,7 +780,9 @@ if (key0 = '0') then  -- added async reset for ball movemnt
       ball_left   <= 100;
       ball_right  <= 105;
 		
-      hex_4_lives       <= "0011"; --reset lives? not sure about this
+		-- reset lives
+      hex_4_lives <= "0011";
+
 		--do i need to reset the ball dirrection?
       
 
@@ -813,7 +820,9 @@ IF(rising_edge(ball_clk)) THEN
 		ball_bottom <= 160;
 		ball_left <= 100;
 		ball_right <= 105;
-		hex_4_lives <= std_logic_vector(unsigned(hex_4_lives) - unsigned(add_val));
+		if(game_over_loss /= '1') then
+			hex_4_lives <= std_logic_vector(unsigned(hex_4_lives) - unsigned(add_val));
+		end if;
 	end if;
 	end if;
 END IF;
