@@ -164,7 +164,7 @@ signal A_curr           : std_logic := '0';
 signal B_curr           : std_logic := '0';
 
 SIGNAL add_val : STD_LOGIC_VECTOR (1 downto 0) := "01";
-signal count_clk : std_logic_vector (24 downto 0) := (others => '0');
+signal count_clk : std_logic_vector (15 downto 0) := (others => '0');
 signal encode_clk : std_logic := '0';
 
 
@@ -1021,7 +1021,7 @@ ball_clock : process(max10_clk, start)
 		  END IF;
 end process;
 
--- 2 Hz clock for accelerometer
+-- 100 Hz clock for accelerometer
 prescale_clock : process(max10_clk, start)
         begin
           -- if pause is not in effect
@@ -1030,7 +1030,7 @@ prescale_clock : process(max10_clk, start)
                     count_clk <= std_logic_vector(unsigned(count_clk) + unsigned(add_val));
 
                     -- if count value has counted to 25000000, toggle prescaled_clock
-                         if (count_clk = "1011111010111100001000000") then
+                         if (count_clk >= "1100001101010000") then
                               encode_clk <= not encode_clk;
                               count_clk <= (others => '0');
                          end if;
@@ -1057,14 +1057,14 @@ paddle_movement: process(encode_clk,key0)
 							x_right <= 565;
 						ELSE
 							if ("0000" < x_right_number AND x_right_number < "0011") then
+								x_left  <= x_left + 1;
+								x_right <= x_right + 1;
+							elsif ("0100" < x_right_number AND x_right_number < "1000") then
 								x_left  <= x_left + 2;
 								x_right <= x_right + 2;
-							elsif ("0100" < x_right_number AND x_right_number < "1000") then
-								x_left  <= x_left + 5;
-								x_right <= x_right + 5;
 							elsif ("1001" < x_right_number AND x_right_number <= "1111") then
-								x_left  <= x_left + 10;
-								x_right <= x_right + 10;
+								x_left  <= x_left + 3;
+								x_right <= x_right + 3;
 							-- keep the same
 							else
 								-- do nothing
@@ -1079,14 +1079,14 @@ paddle_movement: process(encode_clk,key0)
 							x_right <= 125;
 						ELSE
 							if ("0000" < x_left_number AND x_left_number < "0011") then
+								x_left  <= x_left - 1;
+								x_right <= x_right - 1;
+							elsif ("0100" < x_left_number AND x_left_number < "1000") then
 								x_left  <= x_left - 2;
 								x_right <= x_right - 2;
-							elsif ("0100" < x_left_number AND x_left_number < "1000") then
-								x_left  <= x_left - 5;
-								x_right <= x_right - 5;
 							elsif ("1001" < x_left_number AND x_left_number <= "1111") then
-								x_left  <= x_left - 10;
-								x_right <= x_right - 10;
+								x_left  <= x_left - 3;
+								x_right <= x_right - 3;
 							-- keep the same
 							else
 								-- do nothing
