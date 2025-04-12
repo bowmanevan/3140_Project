@@ -171,6 +171,19 @@ signal left_right : std_logic := '0';
 signal up_down : std_logic := '0'; 
 signal reset_location : std_logic := '0'; 
 
+-- ball2 signals
+signal ball2_top : INTEGER:= 235;
+signal ball2_bottom : INTEGER:= 240;
+signal ball2_left : INTEGER := 325;
+signal ball2_right : INTEGER := 330;
+
+-- intialized to left and down
+	-- left = 0, right = 1
+signal left_right2 : std_logic := '1'; 
+	-- up = 0, down = 1
+signal up_down2 : std_logic := '0'; 
+signal reset_location2 : std_logic := '0'; 
+
 
 -- block visibility signals
 type block_on_array is array(1 to 28) of std_logic;
@@ -233,14 +246,18 @@ begin
 		-- on next ball "serve"
 		-- go down and.....
 		up_down <= '1';
+		up_down2 <= '1';
 		-- move left
 		IF (max10_clk = '0') THEN
 			left_right <= '0';
+			left_right2 <= '1';
 		-- move right
 		ELSIF (max10_clk = '1') THEN
 			left_right <= '1';
+			left_right2 <= '0';
 		ELSE
 			left_right <= '0';
+			left_right2 <= '1';
 		END IF;
 	elsif(rising_edge(pll_intermediate)) then 
 	--elsif(rising_edge(pll_OUT_to_vga_controller_IN)) then 
@@ -292,6 +309,26 @@ begin
 				reset_location <= '1';
 				add_score <= '0';
 				
+			 -- if ball2 hits left border at 75 pixels, invert direction from left to right
+			 elsif (ball2_left <= col_a_right) then
+				left_right2 <= '1';
+				add_score <= '0';
+			 -- if ball2 hits right border at 565 pixels, invert direction from right to left
+			 elsif (ball2_right >= col_z_left) then
+				left_right2 <= '0';
+				add_score <= '0';
+			 -- if ball2 hits top border at 75 pixels, invert direction from up to down
+			 elsif (ball2_top <= 75) then
+				up_down2 <= '1';
+				add_score <= '0';
+			 -- if ball2 hits bottom "pit" at 480 pixels, reset ball to initial position
+			 -- AND does random direction on next ball placement
+			 elsif (ball2_bottom >= 480) then
+				reset_location2 <= '1';
+				add_score <= '0';
+				
+	-- paddle 1 (top one)
+		-- ball 1
 			 -- if hit the top of paddle and one of the ball's sides is between the limits of the paddle
 			 elsif ( ball_bottom = paddle_top AND ((x_left <= ball_left AND ball_left <= x_right) OR (x_left <= ball_right AND ball_right <= x_right)) ) then
 				-- rebound up
@@ -315,8 +352,34 @@ begin
 				-- rebound left
 				left_right <= '0';
 				add_score <= '0';
+		
+		-- ball 2
+			 -- if hit the top of paddle and one of the ball's sides is between the limits of the paddle
+			 elsif ( ball2_bottom = paddle_top AND ((x_left <= ball2_left AND ball2_left <= x_right) OR (x_left <= ball2_right AND ball2_right <= x_right)) ) then
+				-- rebound up
+				up_down2 <= '0';
+				add_score <= '0';
+				
+			 -- if hit the bottom of paddle and one of the ball's sides is between the limits of the paddle
+			 elsif ( ball2_top = paddle_bottom AND ((x_left <= ball2_left AND ball2_left <= x_right) OR (x_left <= ball2_right AND ball2_right <= x_right)) ) then
+				-- rebound down
+				up_down2 <= '1';
+				add_score <= '0';
+				
+			 -- if hit the right side of paddle and either the top or bottom of the ball is between the limits of the paddle
+			 elsif ( ball2_left = x_right AND ((paddle_top <= ball2_top AND ball2_top <= paddle_bottom) OR (paddle_top <= ball2_bottom AND ball2_bottom <= paddle_bottom)) ) then
+				-- rebound right
+				left_right2 <= '1';
+				add_score <= '0';
+				
+			 -- if hit the left side of paddle and either the top or bottom of the ball is between the limits of the paddle
+			 elsif ( ball2_right = x_left AND ((paddle_top <= ball2_top AND ball2_top <= paddle_bottom) OR (paddle_top <= ball2_bottom AND ball2_bottom <= paddle_bottom)) ) then
+				-- rebound left
+				left_right2 <= '0';
+				add_score <= '0';
 				
 	-- paddle 2 (bottom one)
+		-- ball 1
 			 -- if hit the top of paddle2 and one of the ball's sides is between the limits of the paddle
 			 elsif ( ball_bottom = paddle2_top AND ((x2_left <= ball_left AND ball_left <= x2_right) OR (x2_left <= ball_right AND ball_right <= x2_right)) ) then
 				-- rebound up
@@ -339,6 +402,31 @@ begin
 			 elsif ( ball_right = x2_left AND ((paddle2_top <= ball_top AND ball_top <= paddle2_bottom) OR (paddle2_top <= ball_bottom AND ball_bottom <= paddle2_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
+				add_score <= '0';
+
+		-- ball 2
+			 -- if hit the top of paddle2 and one of the ball's sides is between the limits of the paddle
+			 elsif ( ball2_bottom = paddle2_top AND ((x2_left <= ball2_left AND ball2_left <= x2_right) OR (x2_left <= ball2_right AND ball2_right <= x2_right)) ) then
+				-- rebound up
+				up_down2 <= '0';
+				add_score <= '0';
+				
+			 -- if hit the bottom of paddle2 and one of the ball's sides is between the limits of the paddle
+			 elsif ( ball2_top = paddle2_bottom AND ((x2_left <= ball2_left AND ball2_left <= x2_right) OR (x2_left <= ball2_right AND ball2_right <= x2_right)) ) then
+				-- rebound down
+				up_down2 <= '1';
+				add_score <= '0';
+				
+			 -- if hit the right side of paddle2 and either the top or bottom of the ball is between the limits of the paddle
+			 elsif ( ball2_left = x2_right AND ((paddle2_top <= ball2_top AND ball2_top <= paddle2_bottom) OR (paddle2_top <= ball2_bottom AND ball2_bottom <= paddle2_bottom)) ) then
+				-- rebound right
+				left_right2 <= '1';
+				add_score <= '0';
+				
+			 -- if hit the left side of paddle2 and either the top or bottom of the ball is between the limits of the paddle
+			 elsif ( ball2_right = x2_left AND ((paddle2_top <= ball2_top AND ball2_top <= paddle2_bottom) OR (paddle2_top <= ball2_bottom AND ball2_bottom <= paddle2_bottom)) ) then
+				-- rebound left
+				left_right2 <= '0';
 				add_score <= '0';
 				
 				-- BLOCK 1
@@ -935,6 +1023,7 @@ begin
 						game_over_win <= '1';
 			 else
 				reset_location <= '0';
+				reset_location2 <= '0';
 				add_score <= '0';
 			 end if;
 		--END IF;
@@ -945,10 +1034,15 @@ ball_movement : process(ball_clk,key0)
 begin
 if (key0 = '0') then  -- added async reset for ball movemnt
       
-      ball_top    <= 155; --reset ball postion
-      ball_bottom <= 160;
-      ball_left   <= 100;
-      ball_right  <= 105;
+      ball_top    <= 235; --reset ball postion
+      ball_bottom <= 240;
+      ball_left   <= 315;
+      ball_right  <= 320;
+		
+		ball2_top    <= 235; --reset ball2 postion
+      ball2_bottom <= 240;
+      ball2_left   <= 325;
+      ball2_right  <= 330;
 		
 		-- reset lives
       hex_4_lives <= "1001";
@@ -996,6 +1090,39 @@ IF(rising_edge(ball_clk)) THEN
 			hex_4_lives <= std_logic_vector(unsigned(hex_4_lives) - unsigned(add_val));
 		end if;
 	end if;
+	
+		-- if ball2 has not fallen in the "pit"
+	if (reset_location2 = '0') then
+		-- moving left
+		if(left_right2 = '0') then
+			ball2_left  <= ball2_left - 1;
+			ball2_right <= ball2_right - 1;
+		-- moving right
+		elsif (left_right2 = '1') then
+			ball2_left  <= ball2_left + 1;
+			ball2_right <= ball2_right +	1;
+		end if;
+		
+		-- moving up
+		if(up_down2 = '0') then
+			ball2_top <= ball2_top - 1;
+			ball2_bottom <= ball2_bottom - 1;
+		-- moving down
+		elsif (up_down2 = '1') then
+			ball2_top <= ball2_top + 1;
+			ball2_bottom <= ball2_bottom + 1;
+		end if;
+	-- reset to initial position, if ball has fallen in pit
+	else
+		ball2_top <= 235;
+		ball2_bottom <= 240;
+		ball2_left <= 325;
+		ball2_right <= 330;
+		if(game_over_loss /= '1') then
+			hex_4_lives <= std_logic_vector(unsigned(hex_4_lives) - unsigned(add_val));
+		end if;
+	end if;
+	
 	end if;
 END IF;
 end process;	
@@ -1156,6 +1283,12 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 			  
 			-- BALL
 			ELSIF(ball_left < colSignal AND colSignal < ball_right AND ball_top < rowSignal AND rowSignal < ball_bottom) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			  
+			-- BALL2
+			ELSIF(ball2_left < colSignal AND colSignal < ball2_right AND ball2_top < rowSignal AND rowSignal < ball2_bottom) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
