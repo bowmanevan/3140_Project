@@ -947,10 +947,10 @@ IF(rising_edge(ball_clk)) THEN
 		end if;
 	-- reset to initial position, if ball has fallen in pit
 	else
-		ball_top <= 155;
-		ball_bottom <= 160;
-		ball_left <= 100;
-		ball_right <= 105;
+		ball_top <= 235;
+		ball_bottom <= 240;
+		ball_left <= 315;
+		ball_right <= 320;
 		if(game_over_loss /= '1') then
 			hex_4_lives <= std_logic_vector(unsigned(hex_4_lives) - unsigned(add_val));
 		end if;
