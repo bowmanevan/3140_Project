@@ -143,12 +143,10 @@ signal ball_counter : INTEGER:= 125000;
 signal ball_clk : std_logic := '0';
 
 -- ball signals
---signal ball_top : INTEGER:= 235;
---signal ball_bottom : INTEGER:= 240;
-signal ball_top : INTEGER:= 205;
-signal ball_bottom : INTEGER:= 210;
-signal ball_left : INTEGER := 150;
-signal ball_right : INTEGER := 155;
+signal ball_top : INTEGER:= 235;
+signal ball_bottom : INTEGER:= 240;
+signal ball_left : INTEGER := 315;
+signal ball_right : INTEGER := 320;
 
 -- intialized to left and down
 	-- left = 0, right = 1
@@ -175,7 +173,7 @@ signal add_score : std_logic := '0';
 
 -- signals for displaying number of lives to seven segment displays 5 downto 4
 signal hex_5_lives    : std_logic_vector (3 downto 0) := "0000";
-signal hex_4_lives    : std_logic_vector (3 downto 0) := "0011";
+signal hex_4_lives    : std_logic_vector (3 downto 0) := "1001";
 
 
 
@@ -199,13 +197,6 @@ start_pause : process (key1, key0)
 			-- pause until reset
 			start <= '0';
 		end if;
-end process;
-
-pll_check : process(pll_OUT_to_vga_controller_IN, start)
-begin
-	if(start = '1') then
-		pll_intermediate <= pll_OUT_to_vga_controller_IN;
-	end if;
 end process;
 
 -- movement for the ball
@@ -919,7 +910,7 @@ if (key0 = '0') then  -- added async reset for ball movemnt
       ball_right  <= 105;
 		
 		-- reset lives
-      hex_4_lives <= "0011";
+      hex_4_lives <= "1001";
 		
 		-- reset game over loss
 		game_over_loss <= '0';
@@ -967,6 +958,13 @@ IF(rising_edge(ball_clk)) THEN
 	end if;
 END IF;
 end process;	
+
+pll_check : process(pll_OUT_to_vga_controller_IN, start)
+begin
+	if(start = '1') then
+		pll_intermediate <= pll_OUT_to_vga_controller_IN;
+	end if;
+end process;
 
 -- 0.005 second clock for ball movement testing
 ball_clock : process(max10_clk, start)
