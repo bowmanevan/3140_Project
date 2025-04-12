@@ -181,6 +181,7 @@ signal hex_4_lives    : std_logic_vector (3 downto 0) := "0011";
 
 -- start/pause signal
 signal start : std_logic := '0';
+signal pll_intermediate : std_logic := '0';
 
 BEGIN
 
@@ -189,7 +190,7 @@ start_pause : process (key1, key0)
 		-- if the game is not over in SOME FORM
 		if (game_over_win = '0' AND game_over_loss = '0') then
 			-- if start/pause key is pressed
-			if (key1 = '0') then
+			if (rising_edge(key1)) then
 				-- toggle from play to pause-or-pause-to-play
 				start <= not start;
 			end if;
@@ -200,8 +201,15 @@ start_pause : process (key1, key0)
 		end if;
 end process;
 
+pll_check : process(pll_OUT_to_vga_controller_IN, start)
+begin
+	if(start = '1') then
+		pll_intermediate <= pll_OUT_to_vga_controller_IN;
+	end if;
+end process;
+
 -- movement for the ball
-ball_direction : process(pll_OUT_to_vga_controller_IN,key0)
+ball_direction : process(pll_intermediate,key0)
 begin
 
 	if (key0 = '0') then  -- added aync reset fot ball_direction
@@ -227,9 +235,10 @@ begin
 		ELSE
 			left_right <= '0';
 		END IF;
-	elsif(rising_edge(pll_OUT_to_vga_controller_IN)) then 
+	elsif(rising_edge(pll_intermediate)) then 
+	--elsif(rising_edge(pll_OUT_to_vga_controller_IN)) then 
 	  -- if pause is not in effect
-	  IF (start = '1') THEN
+	  --IF (start = '1') THEN
 		
 
 
@@ -896,7 +905,7 @@ begin
 				reset_location <= '0';
 				add_score <= '0';
 			 end if;
-		END IF;
+		--END IF;
 	end if;
 end process;
 
@@ -960,7 +969,7 @@ END IF;
 end process;	
 
 -- 0.005 second clock for ball movement testing
-ball_clock : process(max10_clk)
+ball_clock : process(max10_clk, start)
         begin
 		  -- if pause is not in effect
         IF (start = '1') THEN
@@ -976,7 +985,7 @@ ball_clock : process(max10_clk)
 end process;
 
 -- 100 Hz clock for rotary encoder (low enough frequency to ignore noise)
-prescale_clock : process(max10_clk)
+prescale_clock : process(max10_clk, start)
         begin
 		  -- if pause is not in effect
         IF (start = '1') THEN
