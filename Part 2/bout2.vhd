@@ -429,6 +429,9 @@ begin
 				left_right2 <= '0';
 				add_score <= '0';
 				
+				
+				
+		-- ball 1 block collisions
 				-- BLOCK 1
 				elsif ( block_on(1) = '1' AND ball_bottom = row_one_top AND ((block_left(1) <= ball_left AND ball_left <= block_right(1)) OR (block_left(1) <= ball_right AND ball_right <= block_right(1))) ) then
 					-- rebound up
@@ -1017,6 +1020,598 @@ begin
 					left_right <= '0';
 					block_on(28) <= '0';
 					add_score <= '1';				
+					
+					
+-- ball 2 block collisions
+				-- BLOCK 1
+				elsif ( block_on(1) = '1' AND ball2_bottom = row_one_top AND ((block_left(1) <= ball2_left AND ball2_left <= block_right(1)) OR (block_left(1) <= ball2_right AND ball2_right <= block_right(1))) ) then
+					-- rebound up
+					up_down2 <= '0';
+					block_on(1) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(1) = '1' AND ball2_top = row_one_bottom AND ((block_left(1) <= ball2_left AND ball2_left <= block_right(1)) OR (block_left(1) <= ball2_right AND ball2_right <= block_right(1))) ) then
+					-- rebound down
+					up_down2 <= '1';
+					block_on(1) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(1) = '1' AND ball2_left = block_right(1) AND ((row_one_top <= ball2_top AND ball2_top <= row_one_bottom) OR (row_one_top <= ball2_bottom AND ball2_bottom <= row_one_bottom)) ) then
+					-- rebound right
+					left_right2 <= '1';
+					block_on(1) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(1) = '1' AND ball2_right = block_left(1) AND ((row_one_top <= ball2_top AND ball2_top <= row_one_bottom) OR (row_one_top <= ball2_bottom AND ball2_bottom <= row_one_bottom)) ) then
+					-- rebound left
+					left_right2 <= '0';
+					block_on(1) <= '0';
+					add_score <= '1';			
+			-- BLOCK 2
+				elsif ( block_on(2) = '1' AND ball2_bottom = row_one_top AND ((block_left(2) <= ball2_left AND ball2_left <= block_right(2)) OR (block_left(2) <= ball2_right AND ball2_right <= block_right(2))) ) then
+					-- rebound up
+					up_down <= '0';
+					block_on(2) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(2) = '1' AND ball2_top = row_one_bottom AND ((block_left(2) <= ball2_left AND ball2_left <= block_right(2)) OR (block_left(2) <= ball2_right AND ball2_right <= block_right(2))) ) then
+					-- rebound down
+					up_down2 <= '1';
+					block_on(2) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(2) = '1' AND ball2_left = block_right(2) AND ((row_one_top <= ball2_top AND ball2_top <= row_one_bottom) OR (row_one_top <= ball2_bottom AND ball2_bottom <= row_one_bottom)) ) then
+					-- rebound right
+					left_right2 <= '1';
+					block_on(2) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(2) = '1' AND ball2_right = block_left(2) AND ((row_one_top <= ball2_top AND ball2_top <= row_one_bottom) OR (row_one_top <= ball2_bottom AND ball2_bottom <= row_one_bottom)) ) then
+					-- rebound left
+					left_right2 <= '0';
+					block_on(2) <= '0';
+					add_score <= '1';
+			-- BLOCK 3
+				elsif ( block_on(3) = '1' AND ball2_bottom = row_one_top AND ((block_left(3) <= ball2_left AND ball2_left <= block_right(3)) OR (block_left(3) <= ball2_right AND ball2_right <= block_right(3))) ) then
+					-- rebound up
+					up_down2 <= '0';
+					block_on(3) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(3) = '1' AND ball2_top = row_one_bottom AND ((block_left(3) <= ball2_left AND ball2_left <= block_right(3)) OR (block_left(3) <= ball2_right AND ball2_right <= block_right(3))) ) then
+					-- rebound down
+					up_down2 <= '1';
+					block_on(3) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(3) = '1' AND ball2_left = block_right(3) AND ((row_one_top <= ball2_top AND ball2_top <= row_one_bottom) OR (row_one_top <= ball2_bottom AND ball2_bottom <= row_one_bottom)) ) then
+					-- rebound right
+					left_right2 <= '1';
+					block_on(3) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(3) = '1' AND ball2_right = block_left(3) AND ((row_one_top <= ball2_top AND ball2_top <= row_one_bottom) OR (row_one_top <= ball2_bottom AND ball2_bottom <= row_one_bottom)) ) then
+					-- rebound left
+					left_right2 <= '0';
+					block_on(3) <= '0';
+					add_score <= '1';
+			-- BLOCK 4
+				elsif ( block_on(4) = '1' AND ball2_bottom = row_one_top AND ((block_left(4) <= ball2_left AND ball2_left <= block_right(4)) OR (block_left(4) <= ball2_right AND ball2_right <= block_right(4))) ) then
+					-- rebound up
+					up_down2 <= '0';
+					block_on(4) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(4) = '1' AND ball2_top = row_one_bottom AND ((block_left(4) <= ball2_left AND ball2_left <= block_right(4)) OR (block_left(4) <= ball2_right AND ball2_right <= block_right(4))) ) then
+					-- rebound down
+					up_down2 <= '1';
+					block_on(4) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(4) = '1' AND ball2_left = block_right(4) AND ((row_one_top <= ball2_top AND ball2_top <= row_one_bottom) OR (row_one_top <= ball2_bottom AND ball2_bottom <= row_one_bottom)) ) then
+					-- rebound right
+					left_right2 <= '1';
+					block_on(4) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(4) = '1' AND ball2_right = block_left(4) AND ((row_one_top <= ball2_top AND ball2_top <= row_one_bottom) OR (row_one_top <= ball2_bottom AND ball2_bottom <= row_one_bottom)) ) then
+					-- rebound left
+					left_right2 <= '0';
+					block_on(4) <= '0';
+					add_score <= '1';
+			-- BLOCK 5
+				elsif ( block_on(5) = '1' AND ball2_bottom = row_one_top AND ((block_left(5) <= ball2_left AND ball2_left <= block_right(5)) OR (block_left(5) <= ball2_right AND ball2_right <= block_right(5))) ) then
+					-- rebound up
+					up_down2 <= '0';
+					block_on(5) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(5) = '1' AND ball2_top = row_one_bottom AND ((block_left(5) <= ball2_left AND ball2_left <= block_right(5)) OR (block_left(5) <= ball2_right AND ball2_right <= block_right(5))) ) then
+					-- rebound down
+					up_down2 <= '1';
+					block_on(5) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(5) = '1' AND ball2_left = block_right(5) AND ((row_one_top <= ball2_top AND ball2_top <= row_one_bottom) OR (row_one_top <= ball2_bottom AND ball2_bottom <= row_one_bottom)) ) then
+					-- rebound right
+					left_right2 <= '1';
+					block_on(5) <= '0';
+					add_score <= '1';			elsif ( block_on(5) = '1' AND ball2_right = block_left(5) AND ((row_one_top <= ball2_top AND ball2_top <= row_one_bottom) OR (row_one_top <= ball2_bottom AND ball2_bottom <= row_one_bottom)) ) then
+					-- rebound left
+					left_right2 <= '0';
+					block_on(5) <= '0';
+					add_score <= '1';
+			-- BLOCK 6
+				elsif ( block_on(6) = '1' AND ball2_bottom = row_one_top AND ((block_left(6) <= ball2_left AND ball2_left <= block_right(6)) OR (block_left(6) <= ball2_right AND ball2_right <= block_right(6))) ) then
+					-- rebound up
+					up_down2 <= '0';
+					block_on(6) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(6) = '1' AND ball2_top = row_one_bottom AND ((block_left(6) <= ball2_left AND ball2_left <= block_right(6)) OR (block_left(6) <= ball2_right AND ball2_right <= block_right(6))) ) then
+					-- rebound down
+					up_down2 <= '1';
+					block_on(6) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(6) = '1' AND ball2_left = block_right(6) AND ((row_one_top <= ball2_top AND ball2_top <= row_one_bottom) OR (row_one_top <= ball2_bottom AND ball2_bottom <= row_one_bottom)) ) then
+					-- rebound right
+					left_right2 <= '1';
+					block_on(6) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(6) = '1' AND ball2_right = block_left(6) AND ((row_one_top <= ball2_top AND ball2_top <= row_one_bottom) OR (row_one_top <= ball2_bottom AND ball2_bottom <= row_one_bottom)) ) then
+					-- rebound left
+					left_right2 <= '0';
+					block_on(6) <= '0';
+					add_score <= '1';
+			-- BLOCK 7
+				elsif ( block_on(7) = '1' AND ball2_bottom = row_one_top AND ((block_left(7) <= ball2_left AND ball2_left <= block_right(7)) OR (block_left(7) <= ball2_right AND ball2_right <= block_right(7))) ) then
+					-- rebound up
+					up_down2 <= '0';
+					block_on(7) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(7) = '1' AND ball2_top = row_one_bottom AND ((block_left(7) <= ball2_left AND ball2_left <= block_right(7)) OR (block_left(7) <= ball2_right AND ball2_right <= block_right(7))) ) then
+					-- rebound down
+					up_down2 <= '1';
+					block_on(7) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(7) = '1' AND ball2_left = block_right(7) AND ((row_one_top <= ball2_top AND ball2_top <= row_one_bottom) OR (row_one_top <= ball2_bottom AND ball2_bottom <= row_one_bottom)) ) then
+					-- rebound right
+					left_right2 <= '1';
+					block_on(7) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(7) = '1' AND ball2_right = block_left(7) AND ((row_one_top <= ball2_top AND ball2_top <= row_one_bottom) OR (row_one_top <= ball2_bottom AND ball2_bottom <= row_one_bottom)) ) then
+					-- rebound left
+					left_right2 <= '0';
+					block_on(7) <= '0';
+					add_score <= '1';
+			-- BLOCK 8
+				elsif ( block_on(8) = '1' AND ball2_bottom = row_one_top AND ((block_left(8) <= ball2_left AND ball2_left <= block_right(8)) OR (block_left(8) <= ball2_right AND ball2_right <= block_right(8))) ) then
+					-- rebound up
+					up_down2 <= '0';
+					block_on(8) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(8) = '1' AND ball2_top = row_one_bottom AND ((block_left(8) <= ball2_left AND ball2_left <= block_right(8)) OR (block_left(8) <= ball2_right AND ball2_right <= block_right(8))) ) then
+					-- rebound down
+					up_down2 <= '1';
+					block_on(8) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(8) = '1' AND ball2_left = block_right(8) AND ((row_one_top <= ball2_top AND ball2_top <= row_one_bottom) OR (row_one_top <= ball2_bottom AND ball2_bottom <= row_one_bottom)) ) then
+					-- rebound right
+					left_right2 <= '1';
+					block_on(8) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(8) = '1' AND ball2_right = block_left(8) AND ((row_one_top <= ball2_top AND ball2_top <= row_one_bottom) OR (row_one_top <= ball2_bottom AND ball2_bottom <= row_one_bottom)) ) then
+					-- rebound left
+					left_right2 <= '0';
+					block_on(8) <= '0';
+					add_score <= '1';
+			-- BLOCK 9
+				elsif ( block_on(9) = '1' AND ball2_bottom = row_one_top AND ((block_left(9) <= ball2_left AND ball2_left <= block_right(9)) OR (block_left(9) <= ball2_right AND ball2_right <= block_right(9))) ) then
+					-- rebound up
+					up_down2 <= '0';
+					block_on(9) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(9) = '1' AND ball2_top = row_one_bottom AND ((block_left(9) <= ball2_left AND ball2_left <= block_right(9)) OR (block_left(9) <= ball2_right AND ball2_right <= block_right(9))) ) then
+					-- rebound down
+					up_down2 <= '1';
+					block_on(9) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(9) = '1' AND ball2_left = block_right(9) AND ((row_one_top <= ball2_top AND ball2_top <= row_one_bottom) OR (row_one_top <= ball2_bottom AND ball2_bottom <= row_one_bottom)) ) then
+					-- rebound right
+					left_right2 <= '1';
+					block_on(9) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(9) = '1' AND ball2_right = block_left(9) AND ((row_one_top <= ball2_top AND ball2_top <= row_one_bottom) OR (row_one_top <= ball2_bottom AND ball2_bottom <= row_one_bottom)) ) then
+					-- rebound left
+					left_right2 <= '0';
+					block_on(9) <= '0';
+					add_score <= '1';
+			-- BLOCK 10
+				elsif ( block_on(10) = '1' AND ball2_bottom = row_one_top AND ((block_left(10) <= ball2_left AND ball2_left <= block_right(10)) OR (block_left(10) <= ball2_right AND ball2_right <= block_right(10))) ) then
+					-- rebound up
+					up_down2 <= '0';
+					block_on(10) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(10) = '1' AND ball2_top = row_one_bottom AND ((block_left(10) <= ball2_left AND ball2_left <= block_right(10)) OR (block_left(10) <= ball2_right AND ball2_right <= block_right(10))) ) then
+					-- rebound down
+					up_down2 <= '1';
+					block_on(10) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(10) = '1' AND ball2_left = block_right(10) AND ((row_one_top <= ball2_top AND ball2_top <= row_one_bottom) OR (row_one_top <= ball2_bottom AND ball2_bottom <= row_one_bottom)) ) then
+					-- rebound right
+					left_right2 <= '1';
+					block_on(10) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(10) = '1'AND ball2_right = block_left(10) AND ((row_one_top <= ball2_top AND ball2_top <= row_one_bottom) OR (row_one_top <= ball2_bottom AND ball2_bottom <= row_one_bottom)) ) then
+					-- rebound left
+					left_right2 <= '0';
+					block_on(10) <= '0';
+					add_score <= '1';
+			-- BLOCK 11
+				elsif ( block_on(11) = '1' AND ball2_bottom = row_one_top AND ((block_left(11) <= ball2_left AND ball2_left <= block_right(11)) OR (block_left(11) <= ball2_right AND ball2_right <= block_right(11))) ) then
+					-- rebound up
+					up_down2 <= '0';
+					block_on(11) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(11) = '1' AND ball2_top = row_one_bottom AND ((block_left(11) <= ball2_left AND ball2_left <= block_right(11)) OR (block_left(11) <= ball2_right AND ball2_right <= block_right(11))) ) then
+					-- rebound down
+					up_down2 <= '1';
+					block_on(11) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(11) = '1' AND ball2_left = block_right(11) AND ((row_one_top <= ball2_top AND ball2_top <= row_one_bottom) OR (row_one_top <= ball2_bottom AND ball2_bottom <= row_one_bottom)) ) then
+					-- rebound right
+					left_right2 <= '1';
+					block_on(11) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(11) = '1' AND ball2_right = block_left(11) AND ((row_one_top <= ball2_top AND ball2_top <= row_one_bottom) OR (row_one_top <= ball2_bottom AND ball2_bottom <= row_one_bottom)) ) then
+					-- rebound left
+					left_right2 <= '0';
+					block_on(11) <= '0';
+					add_score <= '1';
+			-- BLOCK 12
+				elsif ( block_on(12) = '1' AND ball2_bottom = row_one_top AND ((block_left(12) <= ball2_left AND ball2_left <= block_right(12)) OR (block_left(12) <= ball2_right AND ball2_right <= block_right(12))) ) then
+					-- rebound up
+					up_down2 <= '0';
+					block_on(12) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(12) = '1' AND ball2_top = row_one_bottom AND ((block_left(12) <= ball2_left AND ball2_left <= block_right(12)) OR (block_left(12) <= ball2_right AND ball2_right <= block_right(12))) ) then
+					-- rebound down
+					up_down2 <= '1';
+					block_on(12) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(12) = '1' AND ball2_left = block_right(12) AND ((row_one_top <= ball2_top AND ball2_top <= row_one_bottom) OR (row_one_top <= ball2_bottom AND ball2_bottom <= row_one_bottom)) ) then
+					-- rebound right
+					left_right2 <= '1';
+					block_on(12) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(12) = '1' AND ball2_right = block_left(12) AND ((row_one_top <= ball2_top AND ball2_top <= row_one_bottom) OR (row_one_top <= ball2_bottom AND ball2_bottom <= row_one_bottom)) ) then
+					-- rebound left
+					left_right2 <= '0';
+					block_on(12) <= '0';
+					add_score <= '1';
+			-- BLOCK 13
+				elsif ( block_on(13) = '1' AND ball2_bottom = row_one_top AND ((block_left(13) <= ball2_left AND ball2_left <= block_right(13)) OR (block_left(13) <= ball2_right AND ball2_right <= block_right(13))) ) then
+					-- rebound up
+					up_down2 <= '0';
+					block_on(13) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(13) = '1' AND ball2_top = row_one_bottom AND ((block_left(13) <= ball2_left AND ball2_left <= block_right(13)) OR (block_left(13) <= ball2_right AND ball2_right <= block_right(13))) ) then
+					-- rebound down
+					up_down2 <= '1';
+					block_on(13) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(13) = '1' AND ball2_left = block_right(13) AND ((row_one_top <= ball2_top AND ball2_top <= row_one_bottom) OR (row_one_top <= ball2_bottom AND ball2_bottom <= row_one_bottom)) ) then
+					-- rebound right
+					left_right2 <= '1';
+					block_on(13) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(13) = '1' AND ball2_right = block_left(13) AND ((row_one_top <= ball2_top AND ball2_top <= row_one_bottom) OR (row_one_top <= ball2_bottom AND ball2_bottom <= row_one_bottom)) ) then
+					-- rebound left
+					left_right2 <= '0';
+					block_on(13) <= '0';
+					add_score <= '1';
+			-- BLOCK 14
+				elsif ( block_on(14) = '1' AND ball2_bottom = row_one_top AND ((block_left(14) <= ball2_left AND ball2_left <= block_right(14)) OR (block_left(14) <= ball2_right AND ball2_right <= block_right(14))) ) then
+					-- rebound up
+					up_down2 <= '0';
+					block_on(14) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(14) = '1' AND ball2_top = row_one_bottom AND ((block_left(14) <= ball2_left AND ball2_left <= block_right(14)) OR (block_left(14) <= ball2_right AND ball2_right <= block_right(14))) ) then
+					-- rebound down
+					up_down2 <= '1';
+					block_on(14) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(14) = '1' AND ball2_left = block_right(14) AND ((row_one_top <= ball2_top AND ball2_top <= row_one_bottom) OR (row_one_top <= ball2_bottom AND ball2_bottom <= row_one_bottom)) ) then
+					-- rebound right
+					left_right2 <= '1';
+					block_on(14) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(14) = '1' AND ball2_right = block_left(14) AND ((row_one_top <= ball2_top AND ball2_top <= row_one_bottom) OR (row_one_top <= ball2_bottom AND ball2_bottom <= row_one_bottom)) ) then
+					-- rebound left
+					left_right2 <= '0';
+					block_on(14) <= '0';
+					add_score <= '1';
+			
+			-- BLOCK 15
+				elsif ( block_on(15) = '1' AND ball2_bottom = row_two_top AND ((block_left(1) <= ball2_left AND ball2_left <= block_right(1)) OR (block_left(1) <= ball2_right AND ball2_right <= block_right(1))) ) then
+					-- rebound up
+					up_down2 <= '0';
+					block_on(15) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(15) = '1' AND ball2_top = row_two_bottom AND ((block_left(1) <= ball2_left AND ball2_left <= block_right(1)) OR (block_left(1) <= ball2_right AND ball2_right <= block_right(1))) ) then
+					-- rebound down
+					up_down2 <= '1';
+					block_on(15) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(15) = '1' AND ball2_left = block_right(1) AND ((row_two_top <= ball2_top AND ball2_top <= row_two_bottom) OR (row_two_top <= ball2_bottom AND ball2_bottom <= row_two_bottom)) ) then
+					-- rebound right
+					left_right2 <= '1';
+					block_on(15) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(15) = '1' AND ball2_right = block_left(1) AND ((row_two_top <= ball2_top AND ball2_top <= row_two_bottom) OR (row_two_top <= ball2_bottom AND ball2_bottom <= row_two_bottom)) ) then
+					-- rebound left
+					left_right2 <= '0';
+					block_on(15) <= '0';
+					add_score <= '1';			
+			-- BLOCK 16
+				elsif ( block_on(16) = '1' AND ball2_bottom = row_two_top AND ((block_left(2) <= ball2_left AND ball2_left <= block_right(2)) OR (block_left(2) <= ball2_right AND ball2_right <= block_right(2))) ) then
+					-- rebound up
+					up_down2 <= '0';
+					block_on(16) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(16) = '1' AND ball2_top = row_two_bottom AND ((block_left(2) <= ball2_left AND ball2_left <= block_right(2)) OR (block_left(2) <= ball2_right AND ball2_right <= block_right(2))) ) then
+					-- rebound down
+					up_down2 <= '1';
+					block_on(16) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(16) = '1' AND ball2_left = block_right(2) AND ((row_two_top <= ball2_top AND ball2_top <= row_two_bottom) OR (row_two_top <= ball2_bottom AND ball2_bottom <= row_two_bottom)) ) then
+					-- rebound right
+					left_right2 <= '1';
+					block_on(16) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(16) = '1' AND ball2_right = block_left(2) AND ((row_two_top <= ball2_top AND ball2_top <= row_two_bottom) OR (row_two_top <= ball2_bottom AND ball2_bottom <= row_two_bottom)) ) then
+					-- rebound left
+					left_right2 <= '0';
+					block_on(16) <= '0';
+					add_score <= '1';
+			-- BLOCK 17
+				elsif ( block_on(17) = '1' AND ball2_bottom = row_two_top AND ((block_left(3) <= ball2_left AND ball2_left <= block_right(3)) OR (block_left(3) <= ball2_right AND ball2_right <= block_right(3))) ) then
+					-- rebound up
+					up_down2 <= '0';
+					block_on(17) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(17) = '1' AND ball2_top = row_two_bottom AND ((block_left(3) <= ball2_left AND ball2_left <= block_right(3)) OR (block_left(3) <= ball2_right AND ball2_right <= block_right(3))) ) then
+					-- rebound down
+					up_down2 <= '1';
+					block_on(17) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(17) = '1' AND ball2_left = block_right(3) AND ((row_two_top <= ball2_top AND ball2_top <= row_two_bottom) OR (row_two_top <= ball2_bottom AND ball2_bottom <= row_two_bottom)) ) then
+					-- rebound right
+					left_right2 <= '1';
+					block_on(17) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(17) = '1' AND ball2_right = block_left(3) AND ((row_two_top <= ball2_top AND ball2_top <= row_two_bottom) OR (row_two_top <= ball2_bottom AND ball2_bottom <= row_two_bottom)) ) then
+					-- rebound left
+					left_right2 <= '0';
+					block_on(17) <= '0';
+					add_score <= '1';
+			-- BLOCK 18
+				elsif ( block_on(18) = '1' AND ball2_bottom = row_two_top AND ((block_left(4) <= ball2_left AND ball2_left <= block_right(4)) OR (block_left(4) <= ball2_right AND ball2_right <= block_right(4))) ) then
+					-- rebound up
+					up_down2 <= '0';
+					block_on(18) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(18) = '1' AND ball2_top = row_two_bottom AND ((block_left(4) <= ball2_left AND ball2_left <= block_right(4)) OR (block_left(4) <= ball2_right AND ball2_right <= block_right(4))) ) then
+					-- rebound down
+					up_down2 <= '1';
+					block_on(18) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(18) = '1' AND ball2_left = block_right(4) AND ((row_two_top <= ball2_top AND ball2_top <= row_two_bottom) OR (row_two_top <= ball2_bottom AND ball2_bottom <= row_two_bottom)) ) then
+					-- rebound right
+					left_right2 <= '1';
+					block_on(18) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(18) = '1' AND ball2_right = block_left(4) AND ((row_two_top <= ball2_top AND ball2_top <= row_two_bottom) OR (row_two_top <= ball2_bottom AND ball2_bottom <= row_two_bottom)) ) then
+					-- rebound left
+					left_right2 <= '0';
+					block_on(18) <= '0';
+					add_score <= '1';
+			-- BLOCK 19
+				elsif ( block_on(19) = '1' AND ball2_bottom = row_two_top AND ((block_left(5) <= ball2_left AND ball2_left <= block_right(5)) OR (block_left(5) <= ball2_right AND ball2_right <= block_right(5))) ) then
+					-- rebound up
+					up_down2 <= '0';
+					block_on(19) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(19) = '1' AND ball2_top = row_two_bottom AND ((block_left(5) <= ball2_left AND ball2_left <= block_right(5)) OR (block_left(5) <= ball2_right AND ball2_right <= block_right(5))) ) then
+					-- rebound down
+					up_down2 <= '1';
+					block_on(19) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(19) = '1' AND ball2_left = block_right(5) AND ((row_two_top <= ball2_top AND ball2_top <= row_two_bottom) OR (row_two_top <= ball2_bottom AND ball2_bottom <= row_two_bottom)) ) then
+					-- rebound right
+					left_right2 <= '1';
+					block_on(19) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(19) = '1' AND ball2_right = block_left(5) AND ((row_two_top <= ball2_top AND ball2_top <= row_two_bottom) OR (row_two_top <= ball2_bottom AND ball2_bottom <= row_two_bottom)) ) then
+					-- rebound left
+					left_right2 <= '0';
+					block_on(19) <= '0';
+					add_score <= '1';
+			-- BLOCK 20
+				elsif ( block_on(20) = '1' AND ball2_bottom = row_two_top AND ((block_left(6) <= ball2_left AND ball2_left <= block_right(6)) OR (block_left(6) <= ball2_right AND ball2_right <= block_right(6))) ) then
+					-- rebound up
+					up_down2 <= '0';
+					block_on(20) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(20) = '1' AND ball2_top = row_two_bottom AND ((block_left(6) <= ball2_left AND ball2_left <= block_right(6)) OR (block_left(6) <= ball2_right AND ball2_right <= block_right(6))) ) then
+					-- rebound down
+					up_down2 <= '1';
+					block_on(20) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(20) = '1' AND ball2_left = block_right(6) AND ((row_two_top <= ball2_top AND ball2_top <= row_two_bottom) OR (row_two_top <= ball2_bottom AND ball2_bottom <= row_two_bottom)) ) then
+					-- rebound right
+					left_right2 <= '1';
+					block_on(20) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(20) = '1' AND ball2_right = block_left(6) AND ((row_two_top <= ball2_top AND ball2_top <= row_two_bottom) OR (row_two_top <= ball2_bottom AND ball2_bottom <= row_two_bottom)) ) then
+					-- rebound left
+					left_right2 <= '0';
+					block_on(20) <= '0';
+					add_score <= '1';
+			-- BLOCK 21
+				elsif ( block_on(21) = '1' AND ball2_bottom = row_two_top AND ((block_left(7) <= ball2_left AND ball2_left <= block_right(7)) OR (block_left(7) <= ball2_right AND ball2_right <= block_right(7))) ) then
+					-- rebound up
+					up_down2 <= '0';
+					block_on(21) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(21) = '1' AND ball2_top = row_two_bottom AND ((block_left(7) <= ball2_left AND ball2_left <= block_right(7)) OR (block_left(7) <= ball2_right AND ball2_right <= block_right(7))) ) then
+					-- rebound down
+					up_down2 <= '1';
+					block_on(21) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(21) = '1' AND ball2_left = block_right(7) AND ((row_two_top <= ball2_top AND ball2_top <= row_two_bottom) OR (row_two_top <= ball2_bottom AND ball2_bottom <= row_two_bottom)) ) then
+					-- rebound right
+					left_right2 <= '1';
+					block_on(21) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(21) = '1' AND ball2_right = block_left(7) AND ((row_two_top <= ball2_top AND ball2_top <= row_two_bottom) OR (row_two_top <= ball2_bottom AND ball2_bottom <= row_two_bottom)) ) then
+					-- rebound left
+					left_right2 <= '0';
+					block_on(21) <= '0';
+					add_score <= '1';
+			-- BLOCK 22
+				elsif ( block_on(22) = '1' AND ball2_bottom = row_two_top AND ((block_left(8) <= ball2_left AND ball2_left <= block_right(8)) OR (block_left(8) <= ball2_right AND ball2_right <= block_right(8))) ) then
+					-- rebound up
+					up_down2 <= '0';
+					block_on(22) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(22) = '1' AND ball2_top = row_two_bottom AND ((block_left(8) <= ball2_left AND ball2_left <= block_right(8)) OR (block_left(8) <= ball2_right AND ball2_right <= block_right(8))) ) then
+					-- rebound down
+					up_down2 <= '1';
+					block_on(22) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(22) = '1' AND ball2_left = block_right(8) AND ((row_two_top <= ball2_top AND ball2_top <= row_two_bottom) OR (row_two_top <= ball2_bottom AND ball2_bottom <= row_two_bottom)) ) then
+					-- rebound right
+					left_right2 <= '1';
+					block_on(22) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(22) = '1' AND ball2_right = block_left(8) AND ((row_two_top <= ball2_top AND ball2_top <= row_two_bottom) OR (row_two_top <= ball2_bottom AND ball2_bottom <= row_two_bottom)) ) then
+					-- rebound left
+					left_right2 <= '0';
+					block_on(22) <= '0';
+					add_score <= '1';
+			-- BLOCK 23
+				elsif ( block_on(23) = '1' AND ball2_bottom = row_two_top AND ((block_left(9) <= ball2_left AND ball2_left <= block_right(9)) OR (block_left(9) <= ball2_right AND ball2_right <= block_right(9))) ) then
+					-- rebound up
+					up_down2 <= '0';
+					block_on(23) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(23) = '1' AND ball2_top = row_two_bottom AND ((block_left(9) <= ball2_left AND ball2_left <= block_right(9)) OR (block_left(9) <= ball2_right AND ball2_right <= block_right(9))) ) then
+					-- rebound down
+					up_down2 <= '1';
+					block_on(23) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(23) = '1' AND ball2_left = block_right(9) AND ((row_two_top <= ball2_top AND ball2_top <= row_two_bottom) OR (row_two_top <= ball2_bottom AND ball2_bottom <= row_two_bottom)) ) then
+					-- rebound right
+					left_right2 <= '1';
+					block_on(23) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(23) = '1' AND ball2_right = block_left(9) AND ((row_two_top <= ball2_top AND ball2_top <= row_two_bottom) OR (row_two_top <= ball2_bottom AND ball2_bottom <= row_two_bottom)) ) then
+					-- rebound left
+					left_right2 <= '0';
+					block_on(23) <= '0';
+					add_score <= '1';
+			-- BLOCK 24
+				elsif ( block_on(24) = '1' AND ball2_bottom = row_two_top AND ((block_left(10) <= ball2_left AND ball2_left <= block_right(10)) OR (block_left(10) <= ball2_right AND ball2_right <= block_right(10))) ) then
+					-- rebound up
+					up_down2 <= '0';
+					block_on(24) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(24) = '1' AND ball2_top = row_two_bottom AND ((block_left(10) <= ball2_left AND ball2_left <= block_right(10)) OR (block_left(10) <= ball2_right AND ball2_right <= block_right(10))) ) then
+					-- rebound down
+					up_down2 <= '1';
+					block_on(24) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(24) = '1' AND ball2_left = block_right(10) AND ((row_two_top <= ball2_top AND ball2_top <= row_two_bottom) OR (row_two_top <= ball2_bottom AND ball2_bottom <= row_two_bottom)) ) then
+					-- rebound right
+					left_right2 <= '1';
+					block_on(24) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(24) = '1'AND ball2_right = block_left(10) AND ((row_two_top <= ball2_top AND ball2_top <= row_two_bottom) OR (row_two_top <= ball2_bottom AND ball2_bottom <= row_two_bottom)) ) then
+					-- rebound left
+					left_right2 <= '0';
+					block_on(24) <= '0';
+					add_score <= '1';
+			-- BLOCK 25
+				elsif ( block_on(25) = '1' AND ball2_bottom = row_two_top AND ((block_left(11) <= ball2_left AND ball2_left <= block_right(11)) OR (block_left(11) <= ball2_right AND ball2_right <= block_right(11))) ) then
+					-- rebound up
+					up_down2 <= '0';
+					block_on(25) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(25) = '1' AND ball2_top = row_two_bottom AND ((block_left(11) <= ball2_left AND ball2_left <= block_right(11)) OR (block_left(11) <= ball2_right AND ball2_right <= block_right(11))) ) then
+					-- rebound down
+					up_down2 <= '1';
+					block_on(25) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(25) = '1' AND ball2_left = block_right(11) AND ((row_two_top <= ball2_top AND ball2_top <= row_two_bottom) OR (row_two_top <= ball2_bottom AND ball2_bottom <= row_two_bottom)) ) then
+					-- rebound right
+					left_right2 <= '1';
+					block_on(25) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(25) = '1' AND ball2_right = block_left(11) AND ((row_two_top <= ball2_top AND ball2_top <= row_two_bottom) OR (row_two_top <= ball2_bottom AND ball2_bottom <= row_two_bottom)) ) then
+					-- rebound left
+					left_right2 <= '0';
+					block_on(25) <= '0';
+					add_score <= '1';
+			-- BLOCK 26
+				elsif ( block_on(26) = '1' AND ball2_bottom = row_two_top AND ((block_left(12) <= ball2_left AND ball2_left <= block_right(12)) OR (block_left(12) <= ball2_right AND ball2_right <= block_right(12))) ) then
+					-- rebound up
+					up_down2 <= '0';
+					block_on(26) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(26) = '1' AND ball2_top = row_two_bottom AND ((block_left(12) <= ball2_left AND ball2_left <= block_right(12)) OR (block_left(12) <= ball2_right AND ball2_right <= block_right(12))) ) then
+					-- rebound down
+					up_down2 <= '1';
+					block_on(26) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(26) = '1' AND ball2_left = block_right(12) AND ((row_two_top <= ball2_top AND ball2_top <= row_two_bottom) OR (row_two_top <= ball2_bottom AND ball2_bottom <= row_two_bottom)) ) then
+					-- rebound right
+					left_right2 <= '1';
+					block_on(26) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(26) = '1' AND ball2_right = block_left(12) AND ((row_two_top <= ball2_top AND ball2_top <= row_two_bottom) OR (row_two_top <= ball2_bottom AND ball2_bottom <= row_two_bottom)) ) then
+					-- rebound left
+					left_right2 <= '0';
+					block_on(26) <= '0';
+					add_score <= '1';
+			-- BLOCK 27
+				elsif ( block_on(27) = '1' AND ball2_bottom = row_two_top AND ((block_left(13) <= ball2_left AND ball2_left <= block_right(13)) OR (block_left(13) <= ball2_right AND ball2_right <= block_right(13))) ) then
+					-- rebound up
+					up_down2 <= '0';
+					block_on(27) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(27) = '1' AND ball2_top = row_two_bottom AND ((block_left(13) <= ball2_left AND ball2_left <= block_right(13)) OR (block_left(13) <= ball2_right AND ball2_right <= block_right(13))) ) then
+					-- rebound down
+					up_down2 <= '1';
+					block_on(27) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(27) = '1' AND ball2_left = block_right(13) AND ((row_two_top <= ball2_top AND ball2_top <= row_two_bottom) OR (row_two_top <= ball2_bottom AND ball2_bottom <= row_two_bottom)) ) then
+					-- rebound right
+					left_right2 <= '1';
+					block_on(27) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(27) = '1' AND ball2_right = block_left(13) AND ((row_two_top <= ball2_top AND ball2_top <= row_two_bottom) OR (row_two_top <= ball2_bottom AND ball2_bottom <= row_two_bottom)) ) then
+					-- rebound left
+					left_right2 <= '0';
+					block_on(27) <= '0';
+					add_score <= '1';
+			-- BLOCK 28
+				elsif ( block_on(28) = '1' AND ball2_bottom = row_two_top AND ((block_left(14) <= ball2_left AND ball2_left <= block_right(14)) OR (block_left(14) <= ball2_right AND ball2_right <= block_right(14))) ) then
+					-- rebound up
+					up_down2 <= '0';
+					block_on(28) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(28) = '1' AND ball2_top = row_two_bottom AND ((block_left(14) <= ball2_left AND ball2_left <= block_right(14)) OR (block_left(14) <= ball2_right AND ball2_right <= block_right(14))) ) then
+					-- rebound down
+					up_down2 <= '1';
+					block_on(28) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(28) = '1' AND ball2_left = block_right(14) AND ((row_two_top <= ball2_top AND ball2_top <= row_two_bottom) OR (row_two_top <= ball2_bottom AND ball2_bottom <= row_two_bottom)) ) then
+					-- rebound right
+					left_right2 <= '1';
+					block_on(28) <= '0';
+					add_score <= '1';			
+					elsif ( block_on(28) = '1' AND ball2_right = block_left(14) AND ((row_two_top <= ball2_top AND ball2_top <= row_two_bottom) OR (row_two_top <= ball2_bottom AND ball2_bottom <= row_two_bottom)) ) then
+					-- rebound left
+					left_right2 <= '0';
+					block_on(28) <= '0';
+					add_score <= '1';				
+					
 					
 					-- if all blocks are off, set game_over_win = '1'
 					ELSIF((block_on(1) = '0') and (block_on(2) = '0') and (block_on(3) = '0') and (block_on(4) = '0') and (block_on(5) = '0') and (block_on(6) = '0') and (block_on(7) = '0') and (block_on(8) = '0') and (block_on(9) = '0') and (block_on(10) = '0') and (block_on(11) = '0') and (block_on(12) = '0') and (block_on(13) = '0') and (block_on(14) = '0') and (block_on(15) = '0') and (block_on(16) = '0') and (block_on(17) = '0') and (block_on(18) = '0') and (block_on(19) = '0') and (block_on(20) = '0') and (block_on(21) = '0') and (block_on(22) = '0') and (block_on(23) = '0') and (block_on(24) = '0') and (block_on(25) = '0') and (block_on(26) = '0') and (block_on(27) = '0') and (block_on(28) = '0')) then
