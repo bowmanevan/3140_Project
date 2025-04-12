@@ -169,6 +169,7 @@ signal hex_1_score     : std_logic_vector (3 downto 0) := "0000";
 signal hex_2_score    : std_logic_vector (3 downto 0) := "0000";
 signal game_over_win : std_logic := '0';
 signal game_over_loss : std_logic := '0';
+signal add_score : std_logic := '0';
 
 
 -- signals for displaying number of lives to seven segment displays 5 downto 4
@@ -181,7 +182,7 @@ BEGIN
 ball_direction : process(pll_OUT_to_vga_controller_IN,key0)
 begin
 
-	if (key0 = '0') then  -- added aync reset fot ball_direction		
+	if (key0 = '0') then  -- added aync reset fot ball_direction
 		
 		-- reset score
 		hex_2_score <= "0000";
@@ -206,23 +207,30 @@ begin
 		
 	elsif(rising_edge(pll_OUT_to_vga_controller_IN)) then 
 	
-		-- NEED TO IMPLEMENT THIS LOGIC
-		--if((game_over_win = '1') or (game_over_loss = '1')) then
-			-- pause game
 		
-		-- logic for score counter
+
+
+		-- handle score conversion
 		if(hex_0_score >= "1001") then
-			hex_0_score <= (others => '0');
-			hex_1_score <= std_logic_vector(unsigned(hex_1_score) + unsigned(add_val));
+			
+			if((hex_1_score >= "1001")) then				
+			
+				if((hex_2_score >= "1001")) then 
+					-- game_over_win <= '1';	-- stop game if this condition becomes 1
+				else
+						hex_1_score <= (others => '0');
+						hex_2_score <= std_logic_vector(unsigned(hex_2_score) + unsigned(add_val));
+				end if;
+			else
+					hex_0_score <= (others => '0');
+					hex_1_score <= std_logic_vector(unsigned(hex_1_score) + unsigned(add_val));
+			end if;
 		end if;
 		
-		if((hex_0_score >= "1001") and (hex_1_score >= "1001")) then
-			hex_1_score <= (others => '0');
-			hex_2_score <= std_logic_vector(unsigned(hex_2_score) + unsigned(add_val));	
-		end if;
 	
-		if((hex_0_score >= "1000") and (hex_1_score >= "1001") and (hex_2_score >= "1001")) then 
-			game_over_win <= '1';	-- stop game if this condition becomes 1
+		-- adding score
+		if (add_score = '1') then
+			hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
 		end if;
 	
 		 --move south-west by 1 pixel every 0.05 seconds
@@ -230,625 +238,640 @@ begin
 		 -- if ball hits left border at 75 pixels, invert direction from left to right
 		 if (ball_left <= col_a_right) then
 			left_right <= '1';
+			add_score <= '0';
 		 -- if ball hits right border at 565 pixels, invert direction from right to left
 		 elsif (ball_right >= col_z_left) then
 			left_right <= '0';
+			add_score <= '0';
 		 -- if ball hits top border at 75 pixels, invert direction from up to down
 		 elsif (ball_top <= 75) then
 			up_down <= '1';
+			add_score <= '0';
 		 -- if ball hits bottom "pit" at 480 pixels, reset ball to initial position
 		 -- AND does random direction on next ball placement
 		 elsif (ball_bottom >= 480) then
 			reset_location <= '1';
+			add_score <= '0';
 			
 		 -- if hit the top of paddle and one of the ball's sides is between the limits of the paddle
 		 elsif ( ball_bottom = paddle_top AND ((x_left <= ball_left AND ball_left <= x_right) OR (x_left <= ball_right AND ball_right <= x_right)) ) then
 			-- rebound up
 			up_down <= '0';
+			add_score <= '0';
 			
 		 -- if hit the bottom of paddle and one of the ball's sides is between the limits of the paddle
 		 elsif ( ball_top = paddle_bottom AND ((x_left <= ball_left AND ball_left <= x_right) OR (x_left <= ball_right AND ball_right <= x_right)) ) then
 			-- rebound down
 			up_down <= '1';
+			add_score <= '0';
 			
 		 -- if hit the right side of paddle and either the top or bottom of the ball is between the limits of the paddle
 		 elsif ( ball_left = x_right AND ((paddle_top <= ball_top AND ball_top <= paddle_bottom) OR (paddle_top <= ball_bottom AND ball_bottom <= paddle_bottom)) ) then
 			-- rebound right
 			left_right <= '1';
+			add_score <= '0';
 			
 		 -- if hit the left side of paddle and either the top or bottom of the ball is between the limits of the paddle
 		 elsif ( ball_right = x_left AND ((paddle_top <= ball_top AND ball_top <= paddle_bottom) OR (paddle_top <= ball_bottom AND ball_bottom <= paddle_bottom)) ) then
 			-- rebound left
 			left_right <= '0';
+			add_score <= '0';
 			
 			-- BLOCK 1
 			elsif ( block_on(1) = '1' AND ball_bottom = row_one_top AND ((block_left(1) <= ball_left AND ball_left <= block_right(1)) OR (block_left(1) <= ball_right AND ball_right <= block_right(1))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(1) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			elsif ( block_on(1) = '1' AND ball_top = row_one_bottom AND ((block_left(1) <= ball_left AND ball_left <= block_right(1)) OR (block_left(1) <= ball_right AND ball_right <= block_right(1))) ) then
+				add_score <= '1';			
+				elsif ( block_on(1) = '1' AND ball_top = row_one_bottom AND ((block_left(1) <= ball_left AND ball_left <= block_right(1)) OR (block_left(1) <= ball_right AND ball_right <= block_right(1))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(1) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			elsif ( block_on(1) = '1' AND ball_left = block_right(1) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
+				add_score <= '1';			
+				elsif ( block_on(1) = '1' AND ball_left = block_right(1) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(1) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			elsif ( block_on(1) = '1' AND ball_right = block_left(1) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
+				add_score <= '1';			
+				elsif ( block_on(1) = '1' AND ball_right = block_left(1) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(1) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 		-- BLOCK 2
 			elsif ( block_on(2) = '1' AND ball_bottom = row_one_top AND ((block_left(2) <= ball_left AND ball_left <= block_right(2)) OR (block_left(2) <= ball_right AND ball_right <= block_right(2))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(2) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(2) = '1' AND ball_top = row_one_bottom AND ((block_left(2) <= ball_left AND ball_left <= block_right(2)) OR (block_left(2) <= ball_right AND ball_right <= block_right(2))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(2) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(2) = '1' AND ball_left = block_right(2) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(2) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(2) = '1' AND ball_right = block_left(2) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(2) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));
+				add_score <= '1';
 		-- BLOCK 3
 			elsif ( block_on(3) = '1' AND ball_bottom = row_one_top AND ((block_left(3) <= ball_left AND ball_left <= block_right(3)) OR (block_left(3) <= ball_right AND ball_right <= block_right(3))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(3) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(3) = '1' AND ball_top = row_one_bottom AND ((block_left(3) <= ball_left AND ball_left <= block_right(3)) OR (block_left(3) <= ball_right AND ball_right <= block_right(3))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(3) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(3) = '1' AND ball_left = block_right(3) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(3) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(3) = '1' AND ball_right = block_left(3) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(3) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));
+				add_score <= '1';
 		-- BLOCK 4
 			elsif ( block_on(4) = '1' AND ball_bottom = row_one_top AND ((block_left(4) <= ball_left AND ball_left <= block_right(4)) OR (block_left(4) <= ball_right AND ball_right <= block_right(4))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(4) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(4) = '1' AND ball_top = row_one_bottom AND ((block_left(4) <= ball_left AND ball_left <= block_right(4)) OR (block_left(4) <= ball_right AND ball_right <= block_right(4))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(4) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(4) = '1' AND ball_left = block_right(4) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(4) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(4) = '1' AND ball_right = block_left(4) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(4) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));
+				add_score <= '1';
 		-- BLOCK 5
 			elsif ( block_on(5) = '1' AND ball_bottom = row_one_top AND ((block_left(5) <= ball_left AND ball_left <= block_right(5)) OR (block_left(5) <= ball_right AND ball_right <= block_right(5))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(5) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(5) = '1' AND ball_top = row_one_bottom AND ((block_left(5) <= ball_left AND ball_left <= block_right(5)) OR (block_left(5) <= ball_right AND ball_right <= block_right(5))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(5) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(5) = '1' AND ball_left = block_right(5) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(5) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			elsif ( block_on(5) = '1' AND ball_right = block_left(5) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
+				add_score <= '1';			elsif ( block_on(5) = '1' AND ball_right = block_left(5) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(5) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));
+				add_score <= '1';
 		-- BLOCK 6
 			elsif ( block_on(6) = '1' AND ball_bottom = row_one_top AND ((block_left(6) <= ball_left AND ball_left <= block_right(6)) OR (block_left(6) <= ball_right AND ball_right <= block_right(6))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(6) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(6) = '1' AND ball_top = row_one_bottom AND ((block_left(6) <= ball_left AND ball_left <= block_right(6)) OR (block_left(6) <= ball_right AND ball_right <= block_right(6))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(6) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(6) = '1' AND ball_left = block_right(6) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(6) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(6) = '1' AND ball_right = block_left(6) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(6) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));
+				add_score <= '1';
 		-- BLOCK 7
 			elsif ( block_on(7) = '1' AND ball_bottom = row_one_top AND ((block_left(7) <= ball_left AND ball_left <= block_right(7)) OR (block_left(7) <= ball_right AND ball_right <= block_right(7))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(7) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(7) = '1' AND ball_top = row_one_bottom AND ((block_left(7) <= ball_left AND ball_left <= block_right(7)) OR (block_left(7) <= ball_right AND ball_right <= block_right(7))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(7) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(7) = '1' AND ball_left = block_right(7) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(7) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(7) = '1' AND ball_right = block_left(7) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(7) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));
+				add_score <= '1';
 		-- BLOCK 8
 			elsif ( block_on(8) = '1' AND ball_bottom = row_one_top AND ((block_left(8) <= ball_left AND ball_left <= block_right(8)) OR (block_left(8) <= ball_right AND ball_right <= block_right(8))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(8) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(8) = '1' AND ball_top = row_one_bottom AND ((block_left(8) <= ball_left AND ball_left <= block_right(8)) OR (block_left(8) <= ball_right AND ball_right <= block_right(8))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(8) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(8) = '1' AND ball_left = block_right(8) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(8) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(8) = '1' AND ball_right = block_left(8) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(8) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));
+				add_score <= '1';
 		-- BLOCK 9
 			elsif ( block_on(9) = '1' AND ball_bottom = row_one_top AND ((block_left(9) <= ball_left AND ball_left <= block_right(9)) OR (block_left(9) <= ball_right AND ball_right <= block_right(9))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(9) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(9) = '1' AND ball_top = row_one_bottom AND ((block_left(9) <= ball_left AND ball_left <= block_right(9)) OR (block_left(9) <= ball_right AND ball_right <= block_right(9))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(9) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(9) = '1' AND ball_left = block_right(9) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(9) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(9) = '1' AND ball_right = block_left(9) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(9) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));
+				add_score <= '1';
 		-- BLOCK 10
 			elsif ( block_on(10) = '1' AND ball_bottom = row_one_top AND ((block_left(10) <= ball_left AND ball_left <= block_right(10)) OR (block_left(10) <= ball_right AND ball_right <= block_right(10))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(10) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(10) = '1' AND ball_top = row_one_bottom AND ((block_left(10) <= ball_left AND ball_left <= block_right(10)) OR (block_left(10) <= ball_right AND ball_right <= block_right(10))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(10) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(10) = '1' AND ball_left = block_right(10) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(10) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(10) = '1'AND ball_right = block_left(10) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(10) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));
+				add_score <= '1';
 		-- BLOCK 11
 			elsif ( block_on(11) = '1' AND ball_bottom = row_one_top AND ((block_left(11) <= ball_left AND ball_left <= block_right(11)) OR (block_left(11) <= ball_right AND ball_right <= block_right(11))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(11) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(11) = '1' AND ball_top = row_one_bottom AND ((block_left(11) <= ball_left AND ball_left <= block_right(11)) OR (block_left(11) <= ball_right AND ball_right <= block_right(11))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(11) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(11) = '1' AND ball_left = block_right(11) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(11) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(11) = '1' AND ball_right = block_left(11) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(11) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));
+				add_score <= '1';
 		-- BLOCK 12
 			elsif ( block_on(12) = '1' AND ball_bottom = row_one_top AND ((block_left(12) <= ball_left AND ball_left <= block_right(12)) OR (block_left(12) <= ball_right AND ball_right <= block_right(12))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(12) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(12) = '1' AND ball_top = row_one_bottom AND ((block_left(12) <= ball_left AND ball_left <= block_right(12)) OR (block_left(12) <= ball_right AND ball_right <= block_right(12))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(12) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(12) = '1' AND ball_left = block_right(12) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(12) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(12) = '1' AND ball_right = block_left(12) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(12) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));
+				add_score <= '1';
 		-- BLOCK 13
 			elsif ( block_on(13) = '1' AND ball_bottom = row_one_top AND ((block_left(13) <= ball_left AND ball_left <= block_right(13)) OR (block_left(13) <= ball_right AND ball_right <= block_right(13))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(13) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(13) = '1' AND ball_top = row_one_bottom AND ((block_left(13) <= ball_left AND ball_left <= block_right(13)) OR (block_left(13) <= ball_right AND ball_right <= block_right(13))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(13) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(13) = '1' AND ball_left = block_right(13) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(13) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(13) = '1' AND ball_right = block_left(13) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(13) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));
+				add_score <= '1';
 		-- BLOCK 14
 			elsif ( block_on(14) = '1' AND ball_bottom = row_one_top AND ((block_left(14) <= ball_left AND ball_left <= block_right(14)) OR (block_left(14) <= ball_right AND ball_right <= block_right(14))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(14) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(14) = '1' AND ball_top = row_one_bottom AND ((block_left(14) <= ball_left AND ball_left <= block_right(14)) OR (block_left(14) <= ball_right AND ball_right <= block_right(14))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(14) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(14) = '1' AND ball_left = block_right(14) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(14) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(14) = '1' AND ball_right = block_left(14) AND ((row_one_top <= ball_top AND ball_top <= row_one_bottom) OR (row_one_top <= ball_bottom AND ball_bottom <= row_one_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(14) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));
+				add_score <= '1';
 		
 		-- BLOCK 15
 			elsif ( block_on(15) = '1' AND ball_bottom = row_two_top AND ((block_left(1) <= ball_left AND ball_left <= block_right(1)) OR (block_left(1) <= ball_right AND ball_right <= block_right(1))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(15) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(15) = '1' AND ball_top = row_two_bottom AND ((block_left(1) <= ball_left AND ball_left <= block_right(1)) OR (block_left(1) <= ball_right AND ball_right <= block_right(1))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(15) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(15) = '1' AND ball_left = block_right(1) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(15) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(15) = '1' AND ball_right = block_left(1) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(15) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 		-- BLOCK 16
 			elsif ( block_on(16) = '1' AND ball_bottom = row_two_top AND ((block_left(2) <= ball_left AND ball_left <= block_right(2)) OR (block_left(2) <= ball_right AND ball_right <= block_right(2))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(16) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(16) = '1' AND ball_top = row_two_bottom AND ((block_left(2) <= ball_left AND ball_left <= block_right(2)) OR (block_left(2) <= ball_right AND ball_right <= block_right(2))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(16) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(16) = '1' AND ball_left = block_right(2) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(16) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(16) = '1' AND ball_right = block_left(2) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(16) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));
+				add_score <= '1';
 		-- BLOCK 17
 			elsif ( block_on(17) = '1' AND ball_bottom = row_two_top AND ((block_left(3) <= ball_left AND ball_left <= block_right(3)) OR (block_left(3) <= ball_right AND ball_right <= block_right(3))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(17) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(17) = '1' AND ball_top = row_two_bottom AND ((block_left(3) <= ball_left AND ball_left <= block_right(3)) OR (block_left(3) <= ball_right AND ball_right <= block_right(3))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(17) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(17) = '1' AND ball_left = block_right(3) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(17) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(17) = '1' AND ball_right = block_left(3) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(17) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));
+				add_score <= '1';
 		-- BLOCK 18
 			elsif ( block_on(18) = '1' AND ball_bottom = row_two_top AND ((block_left(4) <= ball_left AND ball_left <= block_right(4)) OR (block_left(4) <= ball_right AND ball_right <= block_right(4))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(18) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(18) = '1' AND ball_top = row_two_bottom AND ((block_left(4) <= ball_left AND ball_left <= block_right(4)) OR (block_left(4) <= ball_right AND ball_right <= block_right(4))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(18) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(18) = '1' AND ball_left = block_right(4) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(18) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(18) = '1' AND ball_right = block_left(4) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(18) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));
+				add_score <= '1';
 		-- BLOCK 19
 			elsif ( block_on(19) = '1' AND ball_bottom = row_two_top AND ((block_left(5) <= ball_left AND ball_left <= block_right(5)) OR (block_left(5) <= ball_right AND ball_right <= block_right(5))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(19) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(19) = '1' AND ball_top = row_two_bottom AND ((block_left(5) <= ball_left AND ball_left <= block_right(5)) OR (block_left(5) <= ball_right AND ball_right <= block_right(5))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(19) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(19) = '1' AND ball_left = block_right(5) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(19) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(19) = '1' AND ball_right = block_left(5) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(19) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));
+				add_score <= '1';
 		-- BLOCK 20
 			elsif ( block_on(20) = '1' AND ball_bottom = row_two_top AND ((block_left(6) <= ball_left AND ball_left <= block_right(6)) OR (block_left(6) <= ball_right AND ball_right <= block_right(6))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(20) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(20) = '1' AND ball_top = row_two_bottom AND ((block_left(6) <= ball_left AND ball_left <= block_right(6)) OR (block_left(6) <= ball_right AND ball_right <= block_right(6))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(20) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(20) = '1' AND ball_left = block_right(6) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(20) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(20) = '1' AND ball_right = block_left(6) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(20) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));
+				add_score <= '1';
 		-- BLOCK 21
 			elsif ( block_on(21) = '1' AND ball_bottom = row_two_top AND ((block_left(7) <= ball_left AND ball_left <= block_right(7)) OR (block_left(7) <= ball_right AND ball_right <= block_right(7))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(21) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(21) = '1' AND ball_top = row_two_bottom AND ((block_left(7) <= ball_left AND ball_left <= block_right(7)) OR (block_left(7) <= ball_right AND ball_right <= block_right(7))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(21) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(21) = '1' AND ball_left = block_right(7) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(21) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(21) = '1' AND ball_right = block_left(7) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(21) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));
+				add_score <= '1';
 		-- BLOCK 22
 			elsif ( block_on(22) = '1' AND ball_bottom = row_two_top AND ((block_left(8) <= ball_left AND ball_left <= block_right(8)) OR (block_left(8) <= ball_right AND ball_right <= block_right(8))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(22) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(22) = '1' AND ball_top = row_two_bottom AND ((block_left(8) <= ball_left AND ball_left <= block_right(8)) OR (block_left(8) <= ball_right AND ball_right <= block_right(8))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(22) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(22) = '1' AND ball_left = block_right(8) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(22) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(22) = '1' AND ball_right = block_left(8) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(22) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));
+				add_score <= '1';
 		-- BLOCK 23
 			elsif ( block_on(23) = '1' AND ball_bottom = row_two_top AND ((block_left(9) <= ball_left AND ball_left <= block_right(9)) OR (block_left(9) <= ball_right AND ball_right <= block_right(9))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(23) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(23) = '1' AND ball_top = row_two_bottom AND ((block_left(9) <= ball_left AND ball_left <= block_right(9)) OR (block_left(9) <= ball_right AND ball_right <= block_right(9))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(23) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(23) = '1' AND ball_left = block_right(9) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(23) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(23) = '1' AND ball_right = block_left(9) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(23) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));
+				add_score <= '1';
 		-- BLOCK 24
 			elsif ( block_on(24) = '1' AND ball_bottom = row_two_top AND ((block_left(10) <= ball_left AND ball_left <= block_right(10)) OR (block_left(10) <= ball_right AND ball_right <= block_right(10))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(24) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(24) = '1' AND ball_top = row_two_bottom AND ((block_left(10) <= ball_left AND ball_left <= block_right(10)) OR (block_left(10) <= ball_right AND ball_right <= block_right(10))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(24) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(24) = '1' AND ball_left = block_right(10) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(24) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(24) = '1'AND ball_right = block_left(10) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(24) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));
+				add_score <= '1';
 		-- BLOCK 25
 			elsif ( block_on(25) = '1' AND ball_bottom = row_two_top AND ((block_left(11) <= ball_left AND ball_left <= block_right(11)) OR (block_left(11) <= ball_right AND ball_right <= block_right(11))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(25) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(25) = '1' AND ball_top = row_two_bottom AND ((block_left(11) <= ball_left AND ball_left <= block_right(11)) OR (block_left(11) <= ball_right AND ball_right <= block_right(11))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(25) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(25) = '1' AND ball_left = block_right(11) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(25) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(25) = '1' AND ball_right = block_left(11) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(25) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));
+				add_score <= '1';
 		-- BLOCK 26
 			elsif ( block_on(26) = '1' AND ball_bottom = row_two_top AND ((block_left(12) <= ball_left AND ball_left <= block_right(12)) OR (block_left(12) <= ball_right AND ball_right <= block_right(12))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(26) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(26) = '1' AND ball_top = row_two_bottom AND ((block_left(12) <= ball_left AND ball_left <= block_right(12)) OR (block_left(12) <= ball_right AND ball_right <= block_right(12))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(26) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(26) = '1' AND ball_left = block_right(12) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(26) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(26) = '1' AND ball_right = block_left(12) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(26) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));
+				add_score <= '1';
 		-- BLOCK 27
 			elsif ( block_on(27) = '1' AND ball_bottom = row_two_top AND ((block_left(13) <= ball_left AND ball_left <= block_right(13)) OR (block_left(13) <= ball_right AND ball_right <= block_right(13))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(27) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(27) = '1' AND ball_top = row_two_bottom AND ((block_left(13) <= ball_left AND ball_left <= block_right(13)) OR (block_left(13) <= ball_right AND ball_right <= block_right(13))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(27) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(27) = '1' AND ball_left = block_right(13) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(27) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(27) = '1' AND ball_right = block_left(13) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(27) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));
+				add_score <= '1';
 		-- BLOCK 28
 			elsif ( block_on(28) = '1' AND ball_bottom = row_two_top AND ((block_left(14) <= ball_left AND ball_left <= block_right(14)) OR (block_left(14) <= ball_right AND ball_right <= block_right(14))) ) then
 				-- rebound up
 				up_down <= '0';
 				block_on(28) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(28) = '1' AND ball_top = row_two_bottom AND ((block_left(14) <= ball_left AND ball_left <= block_right(14)) OR (block_left(14) <= ball_right AND ball_right <= block_right(14))) ) then
 				-- rebound down
 				up_down <= '1';
 				block_on(28) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(28) = '1' AND ball_left = block_right(14) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound right
 				left_right <= '1';
 				block_on(28) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));			
+				add_score <= '1';			
 				elsif ( block_on(28) = '1' AND ball_right = block_left(14) AND ((row_two_top <= ball_top AND ball_top <= row_two_bottom) OR (row_two_top <= ball_bottom AND ball_bottom <= row_two_bottom)) ) then
 				-- rebound left
 				left_right <= '0';
 				block_on(28) <= '0';
-				hex_0_score <= std_logic_vector(unsigned(hex_0_score) + unsigned(add_val));				
+				add_score <= '1';				
 				
+				-- if all blocks are off, set game_over_win = '1'
+				ELSIF((block_on(1) = '0') and (block_on(2) = '0') and (block_on(3) = '0') and (block_on(4) = '0') and (block_on(5) = '0') and (block_on(6) = '0') and (block_on(7) = '0') and (block_on(8) = '0') and (block_on(9) = '0') and (block_on(10) = '0') and (block_on(11) = '0') and (block_on(12) = '0') and (block_on(13) = '0') and (block_on(14) = '0') and (block_on(15) = '0') and (block_on(16) = '0') and (block_on(17) = '0') and (block_on(18) = '0') and (block_on(19) = '0') and (block_on(20) = '0') and (block_on(21) = '0') and (block_on(22) = '0') and (block_on(23) = '0') and (block_on(24) = '0') and (block_on(25) = '0') and (block_on(26) = '0') and (block_on(27) = '0') and (block_on(28) = '0')) then
+					game_over_win <= '1';
 		 else
 			reset_location <= '0';
+			add_score <= '0';
 		 end if;
 	end if;
 end process;
@@ -867,6 +890,7 @@ if (key0 = '0') then  -- added async reset for ball movemnt
 		
 		-- reset game over loss
 		game_over_loss <= '0';
+		--do i need to reset the ball dirrection?
       
 
 else
