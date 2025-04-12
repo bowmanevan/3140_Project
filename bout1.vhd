@@ -904,10 +904,10 @@ ball_movement : process(ball_clk,key0)
 begin
 if (key0 = '0') then  -- added async reset for ball movemnt
       
-      ball_top    <= 155; --reset ball postion
-      ball_bottom <= 160;
-      ball_left   <= 100;
-      ball_right  <= 105;
+      ball_top    <= 235; --reset ball postion
+      ball_bottom <= 240;
+      ball_left   <= 315;
+      ball_right  <= 320;
 		
 		-- reset lives
       hex_4_lives <= "1001";
