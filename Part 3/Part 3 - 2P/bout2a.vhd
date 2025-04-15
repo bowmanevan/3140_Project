@@ -5,7 +5,7 @@ use IEEE.numeric_std.all;
 use work.block_types.all;
 
 
-entity bout2 is 
+entity bout2a is 
 
    -- 10 pixel gaps in between blocks (use 5 pixels for leftmost and rightmost)
 	-- each block is 25 pixels long, 10 pixels tall
@@ -80,12 +80,42 @@ entity bout2 is
 		green_m    :  OUT  STD_LOGIC_VECTOR(7 DOWNTO 0) := (OTHERS => '0');  --green magnitude output to DAC
 		blue_m     :  OUT  STD_LOGIC_VECTOR(7 DOWNTO 0) := (OTHERS => '0'); --blue magnitude output to DAC
 		key1 : in std_logic;
-		key0 : in std_logic
+		key0 : in std_logic;
+		
+		-- accelerometer
+		GSENSOR_CS_N : OUT	STD_LOGIC;
+		GSENSOR_SCLK : OUT	STD_LOGIC;
+		GSENSOR_SDI  : INOUT	STD_LOGIC;
+		GSENSOR_SDO  : INOUT	STD_LOGIC;
+		
+		dFix         : OUT STD_LOGIC_VECTOR(5 downto 0) := "111111";
+		ledFix       : OUT STD_LOGIC_VECTOR(9 downto 0) := "0000000000";
+		
+		-- TWO'S COMPLEMENT VALUES (0 for most significant = left and 1 = right)
+		data_x      : BUFFER STD_LOGIC_VECTOR(15 downto 0);
+		data_y      : BUFFER STD_LOGIC_VECTOR(15 downto 0);
+		data_z      : BUFFER STD_LOGIC_VECTOR(15 downto 0)
 	);
 
-end bout2;
+end bout2a;
 
-ARCHITECTURE breakout_1p OF bout2 IS
+ARCHITECTURE breakout_1p OF bout2a IS
+
+	-- from accelerometer_top file
+	component ADXL345_controller is 
+		port(
+			reset_n     : IN STD_LOGIC;
+			clk         : IN STD_LOGIC;
+			data_valid  : OUT STD_LOGIC;
+			data_x      : OUT STD_LOGIC_VECTOR(15 downto 0);
+			data_y      : OUT STD_LOGIC_VECTOR(15 downto 0);
+			data_z      : OUT STD_LOGIC_VECTOR(15 downto 0);
+			SPI_SDI     : OUT STD_LOGIC;
+			SPI_SDO     : IN STD_LOGIC;
+			SPI_CSN     : OUT STD_LOGIC;
+			SPI_CLK     : OUT STD_LOGIC
+		);
+	end component;
 
 	 -- 7-segment display component
     component bcd_7segment is 
@@ -215,6 +245,14 @@ signal hex_2_lives    : std_logic_vector (3 downto 0) := "1001";
 -- start/pause signal
 signal start : std_logic := '0';
 signal pll_intermediate : std_logic := '0';
+
+-- accelerometer
+SIGNAL x_left_number : std_logic_vector(3 downto 0);
+SIGNAL x_right_twos_comp : std_logic_vector(3 downto 0);
+SIGNAL x_right_number : std_logic_vector(3 downto 0);
+
+-- from accelerometer_top file
+signal co_to_iSPI_CLK, c1_to_iSPI_CLK_OUT, oRST_to_RESET : STD_LOGIC;
 
 BEGIN
 
@@ -1800,28 +1838,51 @@ rotary_encoder: process(encode_clk,key0)
 					
 					-- PADDLE 1
 					-- if signal A changes and is on the rising edge
-					if (A_prev /= A_curr) then
+					if(data_x(15 downto 12) = "1111") then
+						-- converts from two's complement back to regular binary
+						x_right_twos_comp <= data_x(7 downto 4);
+						x_right_number <= std_logic_vector( unsigned(not x_right_twos_comp) + unsigned(add_val) );
 
-					-- Determine direction
-						 -- Clockwise --> right paddle movement
-						 if A_curr = B_prev then
-						 	  if (x_left <= col_a_right) then
-								  x_left <= 75;
-								  x_right <= 125;
-							  else
-								  x_left  <= x_left - 10;
-								  x_right <= x_right - 10;
-							  end if;
-						 -- Counter-clockwise --> left paddle movement
-						 else
-							  if (x_right >= col_z_left) then
-								  x_left <= 515;
-								  x_right <= 565;
-							  else
-								  x_left  <= x_left + 10;
-								  x_right <= x_right + 10;
-							  end if;
-						 end if;
+						IF (x_right >= col_z_left) THEN
+							x_left <= 515;
+							x_right <= 565;
+						ELSE
+							if ("0000" < x_right_number AND x_right_number < "0011") then
+								x_left  <= x_left + 1;
+								x_right <= x_right + 1;
+							elsif ("0100" < x_right_number AND x_right_number < "1000") then
+								x_left  <= x_left + 2;
+								x_right <= x_right + 2;
+							elsif ("1001" < x_right_number AND x_right_number <= "1111") then
+								x_left  <= x_left + 3;
+								x_right <= x_right + 3;
+							-- keep the same
+							else
+								-- do nothing
+							end if;
+						END IF;
+					-- left shift if left tilt
+					elsif(data_x(15 downto 12) = "0000") then
+						x_left_number <= data_x(7 downto 4);
+						
+						IF (x_left <= col_a_right) THEN
+							x_left <= 75;
+							x_right <= 125;
+						ELSE
+							if ("0000" < x_left_number AND x_left_number < "0011") then
+								x_left  <= x_left - 1;
+								x_right <= x_right - 1;
+							elsif ("0100" < x_left_number AND x_left_number < "1000") then
+								x_left  <= x_left - 2;
+								x_right <= x_right - 2;
+							elsif ("1001" < x_left_number AND x_left_number <= "1111") then
+								x_left  <= x_left - 3;
+								x_right <= x_right - 3;
+							-- keep the same
+							else
+								-- do nothing
+							end if;
+						END IF;
 					end if;
 					
 					-- PADDLE 2
@@ -2082,5 +2143,8 @@ display: PROCESS(dispEn, rowSignal, colSignal)
     -- display lives to middle two seven segments
     ULives0: bcd_7segment port map(hex_3_lives, hex3);
     ULives1: bcd_7segment port map(hex_2_lives, hex2);
+	 
+	 -- accelerometer
+   U3 : ADXL345_controller port map('1', max10_clk, open, data_x, data_y, data_z, GSENSOR_SDI, GSENSOR_SDO, GSENSOR_CS_N, GSENSOR_SCLK);
 	 
 end breakout_1p;

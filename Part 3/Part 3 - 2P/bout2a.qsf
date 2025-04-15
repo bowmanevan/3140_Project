@@ -60,24 +60,76 @@ set_location_assignment PIN_N2 -to blue_m[3]
 set_location_assignment PIN_P1 -to blue_m[0]
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -entity vga_top -section_id Top
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -entity pe2_beaty -section_id Top
+set_location_assignment PIN_V11 -to GSENSOR_SDI
+set_location_assignment PIN_AB15 -to GSENSOR_SCLK
+set_location_assignment PIN_AB16 -to GSENSOR_CS_N
+set_location_assignment PIN_V12 -to GSENSOR_SDO
+set_location_assignment PIN_Y19 -to buzzer_out
+set_location_assignment PIN_C10 -to sw0
+set_location_assignment PIN_C11 -to sw1
+set_location_assignment PIN_D12 -to sw2
+set_location_assignment PIN_C12 -to sw3
+set_location_assignment PIN_A12 -to sw4
+set_location_assignment PIN_B12 -to sw5
+set_location_assignment PIN_A13 -to sw6
+set_location_assignment PIN_A14 -to sw7
+set_location_assignment PIN_B14 -to sw8
+set_location_assignment PIN_F15 -to sw9
+set_location_assignment PIN_A16 -to hexpoint[0]
+set_location_assignment PIN_A19 -to hexpoint[1]
+set_location_assignment PIN_D22 -to hexpoint[2]
+set_location_assignment PIN_F17 -to hexpoint[3]
+set_location_assignment PIN_L19 -to hexpoint[4]
+set_location_assignment PIN_D15 -to hexpoint[5]
+set_location_assignment PIN_A8 -to LEDArr[0]
+set_location_assignment PIN_A9 -to LEDArr[1]
+set_location_assignment PIN_A10 -to LEDArr[2]
+set_location_assignment PIN_B10 -to LEDArr[3]
+set_location_assignment PIN_D13 -to LEDArr[4]
+set_location_assignment PIN_C13 -to LEDArr[5]
+set_location_assignment PIN_E14 -to LEDArr[6]
+set_location_assignment PIN_D14 -to LEDArr[7]
+set_location_assignment PIN_A11 -to LEDArr[8]
+set_location_assignment PIN_B11 -to LEDArr[9]
+set_location_assignment PIN_B8 -to key0
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -entity pe2_chan -section_id Top
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -entity bout1 -section_id Top
+set_location_assignment PIN_A7 -to key1
+set_location_assignment PIN_A16 -to dFix[1]
+set_location_assignment PIN_A19 -to dFix[2]
+set_location_assignment PIN_D22 -to dFix[3]
+set_location_assignment PIN_F17 -to dFix[4]
+set_location_assignment PIN_L19 -to dFix[5]
+set_location_assignment PIN_A8 -to ledFix[0]
+set_location_assignment PIN_A9 -to ledFix[1]
+set_location_assignment PIN_A10 -to ledFix[2]
+set_location_assignment PIN_B10 -to ledFix[3]
+set_location_assignment PIN_D13 -to ledFix[4]
+set_location_assignment PIN_C13 -to ledFix[5]
+set_location_assignment PIN_E14 -to ledFix[6]
+set_location_assignment PIN_D14 -to ledFix[7]
+set_location_assignment PIN_A11 -to ledFix[8]
+set_location_assignment PIN_D15 -to dFix[0]
+set_location_assignment PIN_B11 -to ledFix[9]
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -entity bout3 -section_id Top
 set_location_assignment PIN_Y10 -to Arduino_IO5
 set_location_assignment PIN_AB9 -to Arduino_IO4
-set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -entity bout1 -section_id Top
 set_location_assignment PIN_AB8 -to Arduino_IO3
 set_location_assignment PIN_AB7 -to Arduino_IO2
-set_location_assignment PIN_A7 -to key1
-set_location_assignment PIN_B8 -to key0
+set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -entity bout2 -section_id Top
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top
 set_global_assignment -name FAMILY "MAX 10"
 set_global_assignment -name DEVICE 10M50DAF484C7G
-set_global_assignment -name TOP_LEVEL_ENTITY bout2
+set_global_assignment -name TOP_LEVEL_ENTITY bout2a
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 18.1.0
-set_global_assignment -name PROJECT_CREATION_TIME_DATE "14:57:58  APRIL 12, 2025"
+set_global_assignment -name PROJECT_CREATION_TIME_DATE "12:57:04  APRIL 12, 2025"
 set_global_assignment -name LAST_QUARTUS_VERSION "18.1.0 Lite Edition"
 set_global_assignment -name PROJECT_OUTPUT_DIRECTORY output_files
 set_global_assignment -name MIN_CORE_JUNCTION_TEMP 0
 set_global_assignment -name MAX_CORE_JUNCTION_TEMP 85
 set_global_assignment -name ERROR_CHECK_FREQUENCY_DIVISOR 256
+set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
+set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -entity bout1 -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -entity bout1 -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -entity bout1 -section_id Top
@@ -96,12 +148,24 @@ set_global_assignment -name PARTITION_COLOR 16764057 -entity lab6p3 -section_id 
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -entity vga_top -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -entity vga_top -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -entity vga_top -section_id Top
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -entity pe2_chan -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -entity pe2_chan -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -entity pe2_chan -section_id Top
+set_global_assignment -name SYSTEMVERILOG_FILE spi.sv
+set_global_assignment -name SYSTEMVERILOG_FILE gsensor.sv
+set_global_assignment -name VHDL_FILE ADXL345_controller.vhd
+set_global_assignment -name VHDL_FILE bout3.vhd
+set_global_assignment -name VHDL_FILE ../PROJECT/3140_Project/vga_pll_25_175.vhd
+set_global_assignment -name VHDL_FILE ../PROJECT/3140_Project/vga_controller.vhd
+set_global_assignment -name VHDL_FILE ../PROJECT/3140_Project/block_types.vhd
+set_global_assignment -name VHDL_FILE ../PROJECT/3140_Project/7segmentDecoder.vhd
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
-set_global_assignment -name VHDL_FILE vga_pll_25_175.vhd
-set_global_assignment -name VHDL_FILE vga_controller.vhd
-set_global_assignment -name VHDL_FILE block_types.vhd
-set_global_assignment -name VHDL_FILE 7segmentDecoder.vhd
-set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
-set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+set_global_assignment -name VHDL_FILE "../PROJECT - PART 3 (2P)/bout2a.vhd"
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -entity bout3 -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -entity bout3 -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -entity bout3 -section_id Top
+set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -entity bout2 -section_id Top
+set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -entity bout2 -section_id Top
+set_global_assignment -name PARTITION_COLOR 16764057 -entity bout2 -section_id Top
