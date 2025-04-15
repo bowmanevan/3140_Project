@@ -42,8 +42,13 @@ entity bout4 is
 	-- p1_digit_2_score	: INTEGER := 0;	-- this is just to indicate that 0 is the baseline for all digits
 	p1_digit_1_score	: INTEGER := 25;
 	p1_digit_0_score	: INTEGER := 50;	
-	p1_digit_1_lives	: INTEGER := 165;
-	p1_digit_0_lives	: INTEGER := 190;
+	
+	p1_digit_1_lives	: INTEGER := 205;
+	p1_digit_0_lives	: INTEGER := 230;
+	
+	p2_digit_2_score 	: INTEGER := 355;
+	p2_digit_1_score 	: INTEGER := 380;
+	p2_digit_0_score 	: INTEGER := 405;
 	
 	
 	
@@ -2178,6 +2183,7 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
+			
 			
 			-- PADDLE
 			ELSIF(x_left < colSignal AND colSignal < x_right AND paddle_top < rowSignal AND rowSignal < paddle_bottom) THEN
