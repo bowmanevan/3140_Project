@@ -185,6 +185,7 @@ signal pll_intermediate : std_logic := '0';
 
 -- english
 signal english : std_logic := '0';
+signal velocity_increase : std_logic := '0';
 
 -- buzzer intermediate signal
 signal buzzer : std_logic := '0';
@@ -287,6 +288,7 @@ begin
 				reset_location <= '1';
 				add_score <= '0';
 				buzzer <= '0';
+				velocity_increase <= '0';
 				
 			 -- if hit the top of paddle and one of the ball's sides is between the limits of the paddle
 			 elsif ( ball_bottom = paddle_top AND ((x_left <= ball_left AND ball_left <= x_right) OR (x_left <= ball_right AND ball_right <= x_right)) ) then
@@ -294,8 +296,10 @@ begin
 				if (english = '1') then
 					up_down <= '0';
 					left_right <= not left_right;
+					velocity_increase <= '1';
 				else
 					up_down <= '0';
+					velocity_increase <= '0';
 				end if;
 				add_score <= '0';
 				buzzer <= '1';
@@ -1073,22 +1077,46 @@ IF(rising_edge(ball_clk)) THEN
 	if (reset_location = '0') then
 		-- moving left
 		if(left_right = '0') then
-			ball_left  <= ball_left - 1;
-			ball_right <= ball_right - 1;
+			-- "English" check to determine velocity at paddle collision
+			if(velocity_increase = '0') then
+				ball_left  <= ball_left - 1;
+				ball_right <= ball_right - 1;
+			else
+			   ball_left  <= ball_left - 2;
+				ball_right <= ball_right - 2;
+			end if;
 		-- moving right
 		elsif (left_right = '1') then
-			ball_left  <= ball_left + 1;
-			ball_right <= ball_right +	1;
+			-- "English" check to determine velocity at paddle collision
+			if(velocity_increase = '0') then
+				ball_left  <= ball_left + 1;
+				ball_right <= ball_right +	1;
+			else
+			   ball_left  <= ball_left + 2;
+				ball_right <= ball_right + 2;
+			end if;
 		end if;
 		
 		-- moving up
 		if(up_down = '0') then
-			ball_top <= ball_top - 1;
-			ball_bottom <= ball_bottom - 1;
+			-- "English" check to determine velocity at paddle collision
+			if(velocity_increase = '0') then
+				ball_top <= ball_top - 1;
+				ball_bottom <= ball_bottom - 1;
+			else
+				ball_top <= ball_top - 2;
+				ball_bottom <= ball_bottom - 2;
+			end if;
 		-- moving down
 		elsif (up_down = '1') then
-			ball_top <= ball_top + 1;
-			ball_bottom <= ball_bottom + 1;
+			-- "English" check to determine velocity at paddle collision
+			if(velocity_increase = '0') then
+				ball_top <= ball_top + 1;
+				ball_bottom <= ball_bottom + 1;
+			else
+				ball_top <= ball_top + 2;
+				ball_bottom <= ball_bottom + 2;
+			end if;
 		end if;
 	-- reset to initial position, if ball has fallen in pit
 	else
