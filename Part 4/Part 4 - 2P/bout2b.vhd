@@ -254,16 +254,6 @@ signal velocity_increase2 : std_logic := '0';
 signal buzzer : std_logic := '0';
 
 
-
-
-
--- REMOVE THESE SIGNALS
--- signals for displaying number of lives to seven segment displays 5 downto 4
-signal hex_5_lives    : std_logic_vector (3 downto 0) := "0000";
-signal hex_4_lives    : std_logic_vector (3 downto 0) := "1001";
-signal hex_2_score    : std_logic_vector (3 downto 0) := "0000";
-
-
 BEGIN
 
 start_pause : process (key1, key0)
@@ -298,6 +288,8 @@ begin
       reset_location2 <= '0';
 		block_on <= (others => '1'); --turn on all the blocks hitboxes 
 		game_over_win <= '0';
+		velocity_increase <= '0';
+		velocity_increase <= '0';
 		
 		-- on next ball "serve"
 		-- go down and.....
@@ -2002,7 +1994,7 @@ if (key0 = '0') then  -- added async reset for ball movemnt
 else
 IF(rising_edge(ball_clk)) THEN
 	-- if lives have run out, game_over is set to 1
-	if (hex_4_lives = "0000") then
+	if (hex_2_lives = "0000") then
 		game_over_loss <= '1';
 	end if;
 
@@ -2058,7 +2050,7 @@ IF(rising_edge(ball_clk)) THEN
 		ball_left <= 320;
 		ball_right <= 327;
 		if(game_over_loss /= '1') then
-			hex_4_lives <= std_logic_vector(unsigned(hex_4_lives) - unsigned(add_val));
+			hex_2_lives <= std_logic_vector(unsigned(hex_2_lives) - unsigned(add_val));
 		end if;
 	end if;
 	
@@ -2067,45 +2059,45 @@ IF(rising_edge(ball_clk)) THEN
 		-- moving left
 		if(left_right2 = '0') then
 			-- "English" check to determine velocity at paddle collision
-			if(velocity_increase2 = '0') then
+			--if(velocity_increase2 = '0') then
 				ball2_left  <= ball2_left - 1;
 				ball2_right <= ball2_right - 1;
-			else
-			   ball2_left  <= ball2_left - 2;
-				ball2_right <= ball2_right - 2;
-			end if;
+			--else
+			   --ball2_left  <= ball2_left - 2;
+				--ball2_right <= ball2_right - 2;
+			--end if;
 		-- moving right
 		elsif (left_right2 = '1') then
 			-- "English" check to determine velocity at paddle collision
-			if(velocity_increase2 = '0') then
+			--if(velocity_increase2 = '0') then
 				ball2_left  <= ball2_left + 1;
 				ball2_right <= ball2_right +	1;
-			else
-			   ball2_left  <= ball2_left + 2;
-				ball2_right <= ball2_right + 2;
-			end if;
+			--else
+			   --ball2_left  <= ball2_left + 2;
+				--ball2_right <= ball2_right + 2;
+			--end if;
 		end if;
 		
 		-- moving up
 		if(up_down2 = '0') then
 			-- "English" check to determine velocity at paddle collision
-			if(velocity_increase2 = '0') then
+			--if(velocity_increase2 = '0') then
 				ball2_top <= ball2_top - 1;
 				ball2_bottom <= ball2_bottom - 1;
-			else
-				ball2_top <= ball2_top - 2;
-				ball2_bottom <= ball2_bottom - 2;
-			end if;
+			--else
+				--ball2_top <= ball2_top - 2;
+				--ball2_bottom <= ball2_bottom - 2;
+			--end if;
 		-- moving down
 		elsif (up_down2 = '1') then
 			-- "English" check to determine velocity at paddle collision
-			if(velocity_increase2 = '0') then
+			--if(velocity_increase2 = '0') then
 				ball2_top <= ball2_top + 1;
 				ball2_bottom <= ball2_bottom + 1;
-			else
-				ball2_top <= ball2_top + 2;
-				ball2_bottom <= ball2_bottom + 2;
-			end if;
+			--else
+				--ball2_top <= ball2_top + 2;
+				--ball2_bottom <= ball2_bottom + 2;
+			--end if;
 		end if;
 	-- reset to initial position, if ball has fallen in pit
 	else
@@ -2140,7 +2132,11 @@ ball_clock : process(max10_clk, start)
 					-- if count value has counted to 2,500,000, toggle ball_clock
 						 if (ball_counter <= 0) then
 							  ball_clk <= not ball_clk;
-							  ball_counter <= 250000;
+							  --if (velocity_increase = '0') then
+									ball_counter <= 250000;
+							  --else
+									--ball_counter <= 200000;
+							  --end if;
 						 end if;
 			  end if;
 		  END IF;
