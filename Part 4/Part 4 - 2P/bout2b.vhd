@@ -18,15 +18,15 @@ entity bout2b is
 	bottom_of_top : INTEGER := 75;
 	
 	row_one_top : INTEGER := 125;
-	row_one_bottom : INTEGER := 130;
+	row_one_bottom : INTEGER := 135;
 	
-	row_two_top : INTEGER := 135;
-	row_two_bottom : INTEGER := 140;
+	row_two_top : INTEGER := 140;
+	row_two_bottom : INTEGER := 150;
 	
 	paddle_top : INTEGER := 425;
 	paddle_bottom : INTEGER := 430;
 	
-   paddle2_top : INTEGER := 440;
+    paddle2_top : INTEGER := 440;
 	paddle2_bottom : INTEGER := 445;
 	
 	-- segments for vga score/life display
@@ -182,14 +182,14 @@ signal encode_clk : std_logic := '0';
 
 
 -- ball clock
-signal ball_counter : INTEGER:= 125000;
+signal ball_counter : INTEGER:= 250000;
 signal ball_clk : std_logic := '0';
 
 -- ball signals
-signal ball_top : INTEGER:= 235;
-signal ball_bottom : INTEGER:= 240;
-signal ball_left : INTEGER := 315;
-signal ball_right : INTEGER := 320;
+signal ball_top : INTEGER:= 230;
+signal ball_bottom : INTEGER:= 237;
+signal ball_left : INTEGER := 320;
+signal ball_right : INTEGER := 327;
 
 -- intialized to left and down
 	-- left = 0, right = 1
@@ -199,10 +199,10 @@ signal up_down : std_logic := '0';
 signal reset_location : std_logic := '0'; 
 
 -- ball2 signals
-signal ball2_top : INTEGER:= 235;
-signal ball2_bottom : INTEGER:= 240;
-signal ball2_left : INTEGER := 325;
-signal ball2_right : INTEGER := 330;
+signal ball2_top : INTEGER:= 230;
+signal ball2_bottom : INTEGER:= 237;
+signal ball2_left : INTEGER := 335;
+signal ball2_right : INTEGER := 342;
 
 -- intialized to left and down
 	-- left = 0, right = 1
@@ -1982,15 +1982,15 @@ ball_movement : process(ball_clk,key0)
 begin
 if (key0 = '0') then  -- added async reset for ball movemnt
       
-      ball_top    <= 235; --reset ball postion
-      ball_bottom <= 240;
-      ball_left   <= 315;
-      ball_right  <= 320;
+      ball_top    <= 230; --reset ball postion
+      ball_bottom <= 237;
+      ball_left   <= 320;
+      ball_right  <= 327;
 		
-		ball2_top    <= 235; --reset ball2 postion
-      ball2_bottom <= 240;
-      ball2_left   <= 325;
-      ball2_right  <= 330;
+	  ball2_top    <= 230; --reset ball2 postion
+      ball2_bottom <= 237;
+      ball2_left   <= 335;
+      ball2_right  <= 342;
 		
 		-- reset lives
       hex_2_lives <= "1001";
@@ -2053,10 +2053,10 @@ IF(rising_edge(ball_clk)) THEN
 		end if;
 	-- reset to initial position, if ball has fallen in pit
 	else
-		ball_top <= 235;
-		ball_bottom <= 240;
-		ball_left <= 315;
-		ball_right <= 320;
+		ball_top <= 230;
+		ball_bottom <= 237;
+		ball_left <= 320;
+		ball_right <= 327;
 		if(game_over_loss /= '1') then
 			hex_4_lives <= std_logic_vector(unsigned(hex_4_lives) - unsigned(add_val));
 		end if;
@@ -2109,10 +2109,10 @@ IF(rising_edge(ball_clk)) THEN
 		end if;
 	-- reset to initial position, if ball has fallen in pit
 	else
-		ball2_top <= 235;
-		ball2_bottom <= 240;
-		ball2_left <= 325;
-		ball2_right <= 330;
+		ball2_top <= 230;
+		ball2_bottom <= 237;
+		ball2_left <= 335;
+		ball2_right <= 342;
 		if(game_over_loss /= '1') then
 			hex_2_lives <= std_logic_vector(unsigned(hex_2_lives) - unsigned(add_val));
 		end if;
@@ -2130,7 +2130,7 @@ begin
 	end if;
 end process;
 
--- 0.005 second clock for ball movement testing
+-- 0.05 second clock for ball movement testing
 ball_clock : process(max10_clk, start)
         begin
 		  -- if pause is not in effect
@@ -2140,7 +2140,7 @@ ball_clock : process(max10_clk, start)
 					-- if count value has counted to 2,500,000, toggle ball_clock
 						 if (ball_counter <= 0) then
 							  ball_clk <= not ball_clk;
-							  ball_counter <= 125000;
+							  ball_counter <= 250000;
 						 end if;
 			  end if;
 		  END IF;
@@ -2289,25 +2289,48 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 			  green_m  <= (OTHERS => '0');
 			  blue_m <= "00001111";
 			  
-			-- print score digit 2
+			-- print score digit 2 player 1
 			-- zero
 			-- print left segment of zero
-			ELSIF(hex_2_score = "0000" and seg_l_left <= colSignal AND colSignal <= seg_l_right AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(seg_l_left <= colSignal AND colSignal <= seg_l_right AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print right segment of zero;
-			ELSIF(hex_2_score = "0000" and seg_r_left <= colSignal AND colSignal <= seg_r_right AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(seg_r_left <= colSignal AND colSignal <= seg_r_right AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print top segment of zero
-			ELSIF(hex_2_score = "0000" and seg_l_left <= colSignal AND colSignal <= seg_r_right AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			ELSIF(seg_l_left <= colSignal AND colSignal <= seg_r_right AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print bottom segment of zero
-			ELSIF(hex_2_score = "0000" and seg_l_left <= colSignal AND colSignal <= seg_r_right AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
+			ELSIF(seg_l_left <= colSignal AND colSignal <= seg_r_right AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			
+			-- print score digit 1 player 1
+			-- zero
+			-- print left segment of zero
+			ELSIF(hex_5_score = "0000" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_l_right + p1_digit_1_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print right segment of zero;
+			ELSIF(hex_5_score = "0000" and seg_r_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print top segment of zero
+			ELSIF(hex_5_score = "0000" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print bottom segment of zero
+			ELSIF(hex_5_score = "0000" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
@@ -2315,7 +2338,7 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 			  
 			-- one
 			-- print right segment of one
-			ELSIF(hex_2_score = "0001" and seg_r_left <= colSignal AND colSignal <= seg_r_right AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_5_score = "0001" and seg_r_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
@@ -2323,27 +2346,27 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 			  
 			-- two
 			-- print top segment of two
-			ELSIF(hex_2_score = "0010" and seg_l_left <= colSignal AND colSignal <= seg_r_right AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			ELSIF(hex_5_score = "0010" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print right segment of two
-			ELSIF(hex_2_score = "0010" and seg_r_left <= colSignal AND colSignal <= seg_r_right AND rowSignal >= seg_t_top AND seg_m_bottom >= rowSignal) THEN
+			ELSIF(hex_5_score = "0010" and seg_r_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal >= seg_t_top AND seg_m_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print middle segment of two
-			ELSIF(hex_2_score = "0010" and seg_l_left <= colSignal AND colSignal <= seg_r_right AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
+			ELSIF(hex_5_score = "0010" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print left segment of two
-			ELSIF(hex_2_score = "0010" and seg_l_left <= colSignal AND colSignal <= seg_l_right AND rowSignal >= seg_m_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_5_score = "0010" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_l_right + p1_digit_1_score AND rowSignal >= seg_m_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print bottom segment of two
-			ELSIF(hex_2_score = "0010" and seg_l_left <= colSignal AND colSignal <= seg_r_right AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
+			ELSIF(hex_5_score = "0010" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
@@ -2351,22 +2374,22 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 			  
 			-- three
 			-- print top segment of three
-			ELSIF(hex_2_score = "0011" and seg_l_left <= colSignal AND colSignal <= seg_r_right AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			ELSIF(hex_5_score = "0011" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print middle segment of three
-			ELSIF(hex_2_score = "0011" and seg_l_left <= colSignal AND colSignal <= seg_r_right AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
+			ELSIF(hex_5_score = "0011" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');  
 			-- print bottom segment of three
-			ELSIF(hex_2_score = "0011" and seg_l_left <= colSignal AND colSignal <= seg_r_right AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
+			ELSIF(hex_5_score = "0011" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');  
 			-- print right segment of three
-			ELSIF(hex_2_score = "0011" and seg_r_left <= colSignal AND colSignal <= seg_r_right AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_5_score = "0011" and seg_r_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');  
@@ -2374,17 +2397,17 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 			  
 			-- four
 			-- print left segment of four
-			ELSIF(hex_2_score = "0100" and seg_l_left <= colSignal AND colSignal <= seg_l_right AND rowSignal >= seg_t_top AND seg_m_bottom >= rowSignal) THEN
+			ELSIF(hex_5_score = "0100" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_l_right + p1_digit_1_score AND rowSignal >= seg_t_top AND seg_m_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');			
 			-- print middle segment of four
-			ELSIF(hex_2_score = "0100" and seg_l_left <= colSignal AND colSignal <= seg_r_right AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
+			ELSIF(hex_5_score = "0100" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');  
 			-- print right segment of four
-			ELSIF(hex_2_score = "0100" and seg_r_left <= colSignal AND colSignal <= seg_r_right AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_5_score = "0100" and seg_r_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');  
@@ -2392,27 +2415,27 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 			  
 			-- five
 			-- print top segment of five
-			ELSIF(hex_2_score = "0101" and seg_l_left <= colSignal AND colSignal <= seg_r_right AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			ELSIF(hex_5_score = "0101" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print left segment of five
-			ELSIF(hex_2_score = "0101" and seg_l_left <= colSignal AND colSignal <= seg_l_right AND rowSignal >= seg_t_top AND seg_m_bottom >= rowSignal) THEN
+			ELSIF(hex_5_score = "0101" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_l_right + p1_digit_1_score AND rowSignal >= seg_t_top AND seg_m_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print middle segment of five
-			ELSIF(hex_2_score = "0101" and seg_l_left <= colSignal AND colSignal <= seg_r_right AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
+			ELSIF(hex_5_score = "0101" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print right segment of five
-			ELSIF(hex_2_score = "0101" and seg_r_left <= colSignal AND colSignal <= seg_r_right AND rowSignal >= seg_m_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_5_score = "0101" and seg_r_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal >= seg_m_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print bottom segment of five
-			ELSIF(hex_2_score = "0101" and seg_l_left <= colSignal AND colSignal <= seg_r_right AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
+			ELSIF(hex_5_score = "0101" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');  
@@ -2420,27 +2443,27 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 			
 			-- six
 			-- print top segment of six
-			ELSIF(hex_2_score = "0110" and seg_l_left <= colSignal AND colSignal <= seg_r_right AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			ELSIF(hex_5_score = "0110" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print left segment of six
-			ELSIF(hex_2_score = "0110" and seg_l_left <= colSignal AND colSignal <= seg_l_right AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_5_score = "0110" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_l_right + p1_digit_1_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print middle segment of six
-			ELSIF(hex_2_score = "0110" and seg_l_left <= colSignal AND colSignal <= seg_r_right AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
+			ELSIF(hex_5_score = "0110" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print bottom segment of six
-			ELSIF(hex_2_score = "0110" and seg_l_left <= colSignal AND colSignal <= seg_r_right AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
+			ELSIF(hex_5_score = "0110" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print right segment of six
-			ELSIF(hex_2_score = "0110" and seg_r_left <= colSignal AND colSignal <= seg_r_right AND rowSignal >= seg_m_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_5_score = "0110" and seg_r_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal >= seg_m_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');  
@@ -2448,12 +2471,12 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 			  
 			-- seven
 			-- print top segment of seven
-			ELSIF(hex_2_score = "0111" and seg_l_left <= colSignal AND colSignal <= seg_r_right AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			ELSIF(hex_5_score = "0111" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print right segment of seven
-			ELSIF(hex_2_score = "0111" and seg_r_left <= colSignal AND colSignal <= seg_r_right AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_5_score = "0111" and seg_r_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
@@ -2461,27 +2484,27 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 			  
 			-- eight
 			-- print left segment of eight
-			ELSIF(hex_2_score = "1000" and seg_l_left <= colSignal AND colSignal <= seg_l_right AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_5_score = "1000" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_l_right + p1_digit_1_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print right segment of eight;
-			ELSIF(hex_2_score = "1000" and seg_r_left <= colSignal AND colSignal <= seg_r_right AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_5_score = "1000" and seg_r_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print top segment of eight
-			ELSIF(hex_2_score = "1000" and seg_l_left <= colSignal AND colSignal <= seg_r_right AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			ELSIF(hex_5_score = "1000" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print middle segment of eight
-			ELSIF(hex_2_score = "1000" and seg_l_left <= colSignal AND colSignal <= seg_r_right AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
+			ELSIF(hex_5_score = "1000" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print bottom segment of eight
-			ELSIF(hex_2_score = "1000" and seg_l_left <= colSignal AND colSignal <= seg_r_right AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
+			ELSIF(hex_5_score = "1000" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
@@ -2489,46 +2512,45 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 			  
 			-- nine
 			-- print top segment of nine
-			ELSIF(hex_2_score = "1001" and seg_l_left <= colSignal AND colSignal <= seg_r_right AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			ELSIF(hex_5_score = "1001" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print right segment of nine;
-			ELSIF(hex_2_score = "1001" and seg_r_left <= colSignal AND colSignal <= seg_r_right AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_5_score = "1001" and seg_r_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print middle segment of nine
-			ELSIF(hex_2_score = "1001" and seg_l_left <= colSignal AND colSignal <= seg_r_right AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
+			ELSIF(hex_5_score = "1001" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print left segment of nine
-			ELSIF(hex_2_score = "1001" and seg_l_left <= colSignal AND colSignal <= seg_l_right AND rowSignal >= seg_t_top AND seg_m_bottom >= rowSignal) THEN
+			ELSIF(hex_5_score = "1001" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_l_right + p1_digit_1_score AND rowSignal >= seg_t_top AND seg_m_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
-			  
 			
-			-- print score digit 1
+			-- print score digit 0 player 1
 			-- zero
 			-- print left segment of zero
-			ELSIF(hex_1_score = "0000" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_l_right + p1_digit_1_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_4_score = "0000" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_l_right + p1_digit_0_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print right segment of zero;
-			ELSIF(hex_1_score = "0000" and seg_r_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_4_score = "0000" and seg_r_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print top segment of zero
-			ELSIF(hex_1_score = "0000" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			ELSIF(hex_4_score = "0000" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print bottom segment of zero
-			ELSIF(hex_1_score = "0000" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
+			ELSIF(hex_4_score = "0000" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
@@ -2536,7 +2558,7 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 			  
 			-- one
 			-- print right segment of one
-			ELSIF(hex_1_score = "0001" and seg_r_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_4_score = "0001" and seg_r_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
@@ -2544,27 +2566,27 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 			  
 			-- two
 			-- print top segment of two
-			ELSIF(hex_1_score = "0010" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			ELSIF(hex_4_score = "0010" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print right segment of two
-			ELSIF(hex_1_score = "0010" and seg_r_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal >= seg_t_top AND seg_m_bottom >= rowSignal) THEN
+			ELSIF(hex_4_score = "0010" and seg_r_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal >= seg_t_top AND seg_m_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print middle segment of two
-			ELSIF(hex_1_score = "0010" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
+			ELSIF(hex_4_score = "0010" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print left segment of two
-			ELSIF(hex_1_score = "0010" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_l_right + p1_digit_1_score AND rowSignal >= seg_m_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_4_score = "0010" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_l_right + p1_digit_0_score AND rowSignal >= seg_m_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print bottom segment of two
-			ELSIF(hex_1_score = "0010" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
+			ELSIF(hex_4_score = "0010" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
@@ -2572,22 +2594,22 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 			  
 			-- three
 			-- print top segment of three
-			ELSIF(hex_1_score = "0011" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			ELSIF(hex_4_score = "0011" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print middle segment of three
-			ELSIF(hex_1_score = "0011" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
+			ELSIF(hex_4_score = "0011" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');  
 			-- print bottom segment of three
-			ELSIF(hex_1_score = "0011" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
+			ELSIF(hex_4_score = "0011" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');  
 			-- print right segment of three
-			ELSIF(hex_1_score = "0011" and seg_r_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_4_score = "0011" and seg_r_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');  
@@ -2595,17 +2617,17 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 			  
 			-- four
 			-- print left segment of four
-			ELSIF(hex_1_score = "0100" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_l_right + p1_digit_1_score AND rowSignal >= seg_t_top AND seg_m_bottom >= rowSignal) THEN
+			ELSIF(hex_4_score = "0100" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_l_right + p1_digit_0_score AND rowSignal >= seg_t_top AND seg_m_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');			
 			-- print middle segment of four
-			ELSIF(hex_1_score = "0100" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
+			ELSIF(hex_4_score = "0100" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');  
 			-- print right segment of four
-			ELSIF(hex_1_score = "0100" and seg_r_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_4_score = "0100" and seg_r_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');  
@@ -2613,27 +2635,27 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 			  
 			-- five
 			-- print top segment of five
-			ELSIF(hex_1_score = "0101" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			ELSIF(hex_4_score = "0101" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print left segment of five
-			ELSIF(hex_1_score = "0101" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_l_right + p1_digit_1_score AND rowSignal >= seg_t_top AND seg_m_bottom >= rowSignal) THEN
+			ELSIF(hex_4_score = "0101" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_l_right + p1_digit_0_score AND rowSignal >= seg_t_top AND seg_m_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print middle segment of five
-			ELSIF(hex_1_score = "0101" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
+			ELSIF(hex_4_score = "0101" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print right segment of five
-			ELSIF(hex_1_score = "0101" and seg_r_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal >= seg_m_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_4_score = "0101" and seg_r_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal >= seg_m_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print bottom segment of five
-			ELSIF(hex_1_score = "0101" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
+			ELSIF(hex_4_score = "0101" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');  
@@ -2641,27 +2663,27 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 			
 			-- six
 			-- print top segment of six
-			ELSIF(hex_1_score = "0110" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			ELSIF(hex_4_score = "0110" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print left segment of six
-			ELSIF(hex_1_score = "0110" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_l_right + p1_digit_1_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_4_score = "0110" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_l_right + p1_digit_0_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print middle segment of six
-			ELSIF(hex_1_score = "0110" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
+			ELSIF(hex_4_score = "0110" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print bottom segment of six
-			ELSIF(hex_1_score = "0110" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
+			ELSIF(hex_4_score = "0110" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print right segment of six
-			ELSIF(hex_1_score = "0110" and seg_r_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal >= seg_m_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_4_score = "0110" and seg_r_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal >= seg_m_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');  
@@ -2669,12 +2691,12 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 			  
 			-- seven
 			-- print top segment of seven
-			ELSIF(hex_1_score = "0111" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			ELSIF(hex_4_score = "0111" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print right segment of seven
-			ELSIF(hex_1_score = "0111" and seg_r_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_4_score = "0111" and seg_r_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
@@ -2682,27 +2704,27 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 			  
 			-- eight
 			-- print left segment of eight
-			ELSIF(hex_1_score = "1000" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_l_right + p1_digit_1_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_4_score = "1000" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_l_right + p1_digit_0_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print right segment of eight;
-			ELSIF(hex_1_score = "1000" and seg_r_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_4_score = "1000" and seg_r_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print top segment of eight
-			ELSIF(hex_1_score = "1000" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			ELSIF(hex_4_score = "1000" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print middle segment of eight
-			ELSIF(hex_1_score = "1000" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
+			ELSIF(hex_4_score = "1000" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print bottom segment of eight
-			ELSIF(hex_1_score = "1000" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
+			ELSIF(hex_4_score = "1000" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
@@ -2710,242 +2732,22 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 			  
 			-- nine
 			-- print top segment of nine
-			ELSIF(hex_1_score = "1001" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			ELSIF(hex_4_score = "1001" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print right segment of nine;
-			ELSIF(hex_1_score = "1001" and seg_r_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_4_score = "1001" and seg_r_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print middle segment of nine
-			ELSIF(hex_1_score = "1001" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_r_right + p1_digit_1_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
+			ELSIF(hex_4_score = "1001" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print left segment of nine
-			ELSIF(hex_1_score = "1001" and seg_l_left + p1_digit_1_score <= colSignal AND colSignal <= seg_l_right + p1_digit_1_score AND rowSignal >= seg_t_top AND seg_m_bottom >= rowSignal) THEN
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');
-			
-			-- print score digit 0
-			-- zero
-			-- print left segment of zero
-			ELSIF(hex_0_score = "0000" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_l_right + p1_digit_0_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');
-			-- print right segment of zero;
-			ELSIF(hex_0_score = "0000" and seg_r_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');
-			-- print top segment of zero
-			ELSIF(hex_0_score = "0000" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');
-			-- print bottom segment of zero
-			ELSIF(hex_0_score = "0000" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');
-			  
-			  
-			-- one
-			-- print right segment of one
-			ELSIF(hex_0_score = "0001" and seg_r_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');
-			  
-			  
-			-- two
-			-- print top segment of two
-			ELSIF(hex_0_score = "0010" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');
-			-- print right segment of two
-			ELSIF(hex_0_score = "0010" and seg_r_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal >= seg_t_top AND seg_m_bottom >= rowSignal) THEN
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');
-			-- print middle segment of two
-			ELSIF(hex_0_score = "0010" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');
-			-- print left segment of two
-			ELSIF(hex_0_score = "0010" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_l_right + p1_digit_0_score AND rowSignal >= seg_m_top AND seg_b_bottom >= rowSignal) THEN
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');
-			-- print bottom segment of two
-			ELSIF(hex_0_score = "0010" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');
-			  
-			  
-			-- three
-			-- print top segment of three
-			ELSIF(hex_0_score = "0011" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');
-			-- print middle segment of three
-			ELSIF(hex_0_score = "0011" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');  
-			-- print bottom segment of three
-			ELSIF(hex_0_score = "0011" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');  
-			-- print right segment of three
-			ELSIF(hex_0_score = "0011" and seg_r_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');  
-			  
-			  
-			-- four
-			-- print left segment of four
-			ELSIF(hex_0_score = "0100" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_l_right + p1_digit_0_score AND rowSignal >= seg_t_top AND seg_m_bottom >= rowSignal) THEN
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');			
-			-- print middle segment of four
-			ELSIF(hex_0_score = "0100" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');  
-			-- print right segment of four
-			ELSIF(hex_0_score = "0100" and seg_r_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');  
-			  
-			  
-			-- five
-			-- print top segment of five
-			ELSIF(hex_0_score = "0101" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');
-			-- print left segment of five
-			ELSIF(hex_0_score = "0101" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_l_right + p1_digit_0_score AND rowSignal >= seg_t_top AND seg_m_bottom >= rowSignal) THEN
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');
-			-- print middle segment of five
-			ELSIF(hex_0_score = "0101" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');
-			-- print right segment of five
-			ELSIF(hex_0_score = "0101" and seg_r_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal >= seg_m_top AND seg_b_bottom >= rowSignal) THEN
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');
-			-- print bottom segment of five
-			ELSIF(hex_0_score = "0101" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');  
-			
-			
-			-- six
-			-- print top segment of six
-			ELSIF(hex_0_score = "0110" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');
-			-- print left segment of six
-			ELSIF(hex_0_score = "0110" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_l_right + p1_digit_0_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');
-			-- print middle segment of six
-			ELSIF(hex_0_score = "0110" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');
-			-- print bottom segment of six
-			ELSIF(hex_0_score = "0110" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');
-			-- print right segment of six
-			ELSIF(hex_0_score = "0110" and seg_r_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal >= seg_m_top AND seg_b_bottom >= rowSignal) THEN
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');  
-			  
-			  
-			-- seven
-			-- print top segment of seven
-			ELSIF(hex_0_score = "0111" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');
-			-- print right segment of seven
-			ELSIF(hex_0_score = "0111" and seg_r_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');
-			  
-			  
-			-- eight
-			-- print left segment of eight
-			ELSIF(hex_0_score = "1000" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_l_right + p1_digit_0_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');
-			-- print right segment of eight;
-			ELSIF(hex_0_score = "1000" and seg_r_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');
-			-- print top segment of eight
-			ELSIF(hex_0_score = "1000" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');
-			-- print middle segment of eight
-			ELSIF(hex_0_score = "1000" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');
-			-- print bottom segment of eight
-			ELSIF(hex_0_score = "1000" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');
-			  
-			  
-			-- nine
-			-- print top segment of nine
-			ELSIF(hex_0_score = "1001" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');
-			-- print right segment of nine;
-			ELSIF(hex_0_score = "1001" and seg_r_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');
-			-- print middle segment of nine
-			ELSIF(hex_0_score = "1001" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_r_right + p1_digit_0_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
-			  red_m <= (OTHERS => '1');
-			  green_m  <= (OTHERS => '1');
-			  blue_m <= (OTHERS => '1');
-			-- print left segment of nine
-			ELSIF(hex_0_score = "1001" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_l_right + p1_digit_0_score AND rowSignal >= seg_t_top AND seg_m_bottom >= rowSignal) THEN
+			ELSIF(hex_4_score = "1001" and seg_l_left + p1_digit_0_score <= colSignal AND colSignal <= seg_l_right + p1_digit_0_score AND rowSignal >= seg_t_top AND seg_m_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
@@ -2953,22 +2755,22 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 			-- print lives digit 1
 			-- zero
 			-- print left segment of zero
-			ELSIF(hex_5_lives = "0000" and seg_l_left + p1_digit_1_lives <= colSignal AND colSignal <= seg_l_right + p1_digit_1_lives AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_3_lives = "0000" and seg_l_left + p1_digit_1_lives <= colSignal AND colSignal <= seg_l_right + p1_digit_1_lives AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print right segment of zero;
-			ELSIF(hex_5_lives = "0000" and seg_r_left + p1_digit_1_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_1_lives AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_3_lives = "0000" and seg_r_left + p1_digit_1_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_1_lives AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print top segment of zero
-			ELSIF(hex_5_lives = "0000" and seg_l_left + p1_digit_1_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_1_lives AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			ELSIF(hex_3_lives = "0000" and seg_l_left + p1_digit_1_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_1_lives AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print bottom segment of zero
-			ELSIF(hex_5_lives = "0000" and seg_l_left + p1_digit_1_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_1_lives AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
+			ELSIF(hex_3_lives = "0000" and seg_l_left + p1_digit_1_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_1_lives AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
@@ -2977,22 +2779,22 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 			-- print lives digit 0
 			-- zero
 			-- print left segment of zero
-			ELSIF(hex_4_lives = "0000" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_l_right + p1_digit_0_lives AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_2_lives = "0000" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_l_right + p1_digit_0_lives AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print right segment of zero;
-			ELSIF(hex_4_lives = "0000" and seg_r_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_2_lives = "0000" and seg_r_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print top segment of zero
-			ELSIF(hex_4_lives = "0000" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			ELSIF(hex_2_lives = "0000" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print bottom segment of zero
-			ELSIF(hex_4_lives = "0000" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
+			ELSIF(hex_2_lives = "0000" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
@@ -3000,7 +2802,7 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 			  
 			-- one
 			-- print right segment of one
-			ELSIF(hex_4_lives = "0001" and seg_r_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_2_lives = "0001" and seg_r_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
@@ -3008,27 +2810,27 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 			  
 			-- two
 			-- print top segment of two
-			ELSIF(hex_4_lives = "0010" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			ELSIF(hex_2_lives = "0010" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print right segment of two
-			ELSIF(hex_4_lives = "0010" and seg_r_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal >= seg_t_top AND seg_m_bottom >= rowSignal) THEN
+			ELSIF(hex_2_lives = "0010" and seg_r_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal >= seg_t_top AND seg_m_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print middle segment of two
-			ELSIF(hex_4_lives = "0010" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
+			ELSIF(hex_2_lives = "0010" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print left segment of two
-			ELSIF(hex_4_lives = "0010" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_l_right + p1_digit_0_lives AND rowSignal >= seg_m_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_2_lives = "0010" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_l_right + p1_digit_0_lives AND rowSignal >= seg_m_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print bottom segment of two
-			ELSIF(hex_4_lives = "0010" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
+			ELSIF(hex_2_lives = "0010" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
@@ -3036,22 +2838,22 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 			  
 			-- three
 			-- print top segment of three
-			ELSIF(hex_4_lives = "0011" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			ELSIF(hex_2_lives = "0011" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print middle segment of three
-			ELSIF(hex_4_lives = "0011" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
+			ELSIF(hex_2_lives = "0011" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');  
 			-- print bottom segment of three
-			ELSIF(hex_4_lives = "0011" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
+			ELSIF(hex_2_lives = "0011" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');  
 			-- print right segment of three
-			ELSIF(hex_4_lives = "0011" and seg_r_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_2_lives = "0011" and seg_r_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');  
@@ -3059,17 +2861,17 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 			  
 			-- four
 			-- print left segment of four
-			ELSIF(hex_4_lives = "0100" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_l_right + p1_digit_0_lives AND rowSignal >= seg_t_top AND seg_m_bottom >= rowSignal) THEN
+			ELSIF(hex_2_lives = "0100" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_l_right + p1_digit_0_lives AND rowSignal >= seg_t_top AND seg_m_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');			
 			-- print middle segment of four
-			ELSIF(hex_4_lives = "0100" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
+			ELSIF(hex_2_lives = "0100" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');  
 			-- print right segment of four
-			ELSIF(hex_4_lives = "0100" and seg_r_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_2_lives = "0100" and seg_r_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');  
@@ -3077,27 +2879,27 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 			  
 			-- five
 			-- print top segment of five
-			ELSIF(hex_4_lives = "0101" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			ELSIF(hex_2_lives = "0101" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print left segment of five
-			ELSIF(hex_4_lives = "0101" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_l_right + p1_digit_0_lives AND rowSignal >= seg_t_top AND seg_m_bottom >= rowSignal) THEN
+			ELSIF(hex_2_lives = "0101" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_l_right + p1_digit_0_lives AND rowSignal >= seg_t_top AND seg_m_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print middle segment of five
-			ELSIF(hex_4_lives = "0101" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
+			ELSIF(hex_2_lives = "0101" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print right segment of five
-			ELSIF(hex_4_lives = "0101" and seg_r_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal >= seg_m_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_2_lives = "0101" and seg_r_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal >= seg_m_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print bottom segment of five
-			ELSIF(hex_4_lives = "0101" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
+			ELSIF(hex_2_lives = "0101" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');  
@@ -3105,27 +2907,27 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 			
 			-- six
 			-- print top segment of six
-			ELSIF(hex_4_lives = "0110" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			ELSIF(hex_2_lives = "0110" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print left segment of six
-			ELSIF(hex_4_lives = "0110" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_l_right + p1_digit_0_lives AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_2_lives = "0110" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_l_right + p1_digit_0_lives AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print middle segment of six
-			ELSIF(hex_4_lives = "0110" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
+			ELSIF(hex_2_lives = "0110" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print bottom segment of six
-			ELSIF(hex_4_lives = "0110" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
+			ELSIF(hex_2_lives = "0110" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print right segment of six
-			ELSIF(hex_4_lives = "0110" and seg_r_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal >= seg_m_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_2_lives = "0110" and seg_r_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal >= seg_m_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');  
@@ -3133,12 +2935,12 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 			  
 			-- seven
 			-- print top segment of seven
-			ELSIF(hex_4_lives = "0111" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			ELSIF(hex_2_lives = "0111" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print right segment of seven
-			ELSIF(hex_4_lives = "0111" and seg_r_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_2_lives = "0111" and seg_r_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
@@ -3146,27 +2948,27 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 			  
 			-- eight
 			-- print left segment of eight
-			ELSIF(hex_4_lives = "1000" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_l_right + p1_digit_0_lives AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_2_lives = "1000" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_l_right + p1_digit_0_lives AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print right segment of eight;
-			ELSIF(hex_4_lives = "1000" and seg_r_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_2_lives = "1000" and seg_r_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print top segment of eight
-			ELSIF(hex_4_lives = "1000" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			ELSIF(hex_2_lives = "1000" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print middle segment of eight
-			ELSIF(hex_4_lives = "1000" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
+			ELSIF(hex_2_lives = "1000" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print bottom segment of eight
-			ELSIF(hex_4_lives = "1000" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
+			ELSIF(hex_2_lives = "1000" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
@@ -3174,22 +2976,486 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 			  
 			-- nine
 			-- print top segment of nine
-			ELSIF(hex_4_lives = "1001" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			ELSIF(hex_2_lives = "1001" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print right segment of nine;
-			ELSIF(hex_4_lives = "1001" and seg_r_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			ELSIF(hex_2_lives = "1001" and seg_r_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print middle segment of nine
-			ELSIF(hex_4_lives = "1001" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
+			ELSIF(hex_2_lives = "1001" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_r_right + p1_digit_0_lives AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
 			-- print left segment of nine
-			ELSIF(hex_4_lives = "1001" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_l_right + p1_digit_0_lives AND rowSignal >= seg_t_top AND seg_m_bottom >= rowSignal) THEN
+			ELSIF(hex_2_lives = "1001" and seg_l_left + p1_digit_0_lives <= colSignal AND colSignal <= seg_l_right + p1_digit_0_lives AND rowSignal >= seg_t_top AND seg_m_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			
+			-- print score digit 2 player 2
+			-- zero
+			-- print left segment of zero
+			ELSIF(seg_l_left + p2_digit_2_score <= colSignal AND colSignal <= seg_l_right + p2_digit_2_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print right segment of zero;
+			ELSIF(seg_r_left + p2_digit_2_score <= colSignal AND colSignal <= seg_r_right + p2_digit_2_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print top segment of zero
+			ELSIF(seg_l_left + p2_digit_2_score <= colSignal AND colSignal <= seg_r_right + p2_digit_2_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print bottom segment of zero
+			ELSIF(seg_l_left + p2_digit_2_score <= colSignal AND colSignal <= seg_r_right + p2_digit_2_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			
+			-- print score digit 1 player 2
+			-- zero
+			-- print left segment of zero
+			ELSIF(hex_1_score = "0000" and seg_l_left + p2_digit_1_score <= colSignal AND colSignal <= seg_l_right + p2_digit_1_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print right segment of zero;
+			ELSIF(hex_1_score = "0000" and seg_r_left + p2_digit_1_score <= colSignal AND colSignal <= seg_r_right + p2_digit_1_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print top segment of zero
+			ELSIF(hex_1_score = "0000" and seg_l_left + p2_digit_1_score <= colSignal AND colSignal <= seg_r_right + p2_digit_1_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print bottom segment of zero
+			ELSIF(hex_1_score = "0000" and seg_l_left + p2_digit_1_score <= colSignal AND colSignal <= seg_r_right + p2_digit_1_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			  
+			  
+			-- one
+			-- print right segment of one
+			ELSIF(hex_1_score = "0001" and seg_r_left + p2_digit_1_score <= colSignal AND colSignal <= seg_r_right + p2_digit_1_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			  
+			  
+			-- two
+			-- print top segment of two
+			ELSIF(hex_1_score = "0010" and seg_l_left + p2_digit_1_score <= colSignal AND colSignal <= seg_r_right + p2_digit_1_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print right segment of two
+			ELSIF(hex_1_score = "0010" and seg_r_left + p2_digit_1_score <= colSignal AND colSignal <= seg_r_right + p2_digit_1_score AND rowSignal >= seg_t_top AND seg_m_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print middle segment of two
+			ELSIF(hex_1_score = "0010" and seg_l_left + p2_digit_1_score <= colSignal AND colSignal <= seg_r_right + p2_digit_1_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print left segment of two
+			ELSIF(hex_1_score = "0010" and seg_l_left + p2_digit_1_score <= colSignal AND colSignal <= seg_l_right + p2_digit_1_score AND rowSignal >= seg_m_top AND seg_b_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print bottom segment of two
+			ELSIF(hex_1_score = "0010" and seg_l_left + p2_digit_1_score <= colSignal AND colSignal <= seg_r_right + p2_digit_1_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			  
+			  
+			-- three
+			-- print top segment of three
+			ELSIF(hex_1_score = "0011" and seg_l_left + p2_digit_1_score <= colSignal AND colSignal <= seg_r_right + p2_digit_1_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print middle segment of three
+			ELSIF(hex_1_score = "0011" and seg_l_left + p2_digit_1_score <= colSignal AND colSignal <= seg_r_right + p2_digit_1_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');  
+			-- print bottom segment of three
+			ELSIF(hex_1_score = "0011" and seg_l_left + p2_digit_1_score <= colSignal AND colSignal <= seg_r_right + p2_digit_1_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');  
+			-- print right segment of three
+			ELSIF(hex_1_score = "0011" and seg_r_left + p2_digit_1_score <= colSignal AND colSignal <= seg_r_right + p2_digit_1_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');  
+			  
+			  
+			-- four
+			-- print left segment of four
+			ELSIF(hex_1_score = "0100" and seg_l_left + p2_digit_1_score <= colSignal AND colSignal <= seg_l_right + p2_digit_1_score AND rowSignal >= seg_t_top AND seg_m_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');			
+			-- print middle segment of four
+			ELSIF(hex_1_score = "0100" and seg_l_left + p2_digit_1_score <= colSignal AND colSignal <= seg_r_right + p2_digit_1_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');  
+			-- print right segment of four
+			ELSIF(hex_1_score = "0100" and seg_r_left + p2_digit_1_score <= colSignal AND colSignal <= seg_r_right + p2_digit_1_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');  
+			  
+			  
+			-- five
+			-- print top segment of five
+			ELSIF(hex_1_score = "0101" and seg_l_left + p2_digit_1_score <= colSignal AND colSignal <= seg_r_right + p2_digit_1_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print left segment of five
+			ELSIF(hex_1_score = "0101" and seg_l_left + p2_digit_1_score <= colSignal AND colSignal <= seg_l_right + p2_digit_1_score AND rowSignal >= seg_t_top AND seg_m_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print middle segment of five
+			ELSIF(hex_1_score = "0101" and seg_l_left + p2_digit_1_score <= colSignal AND colSignal <= seg_r_right + p2_digit_1_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print right segment of five
+			ELSIF(hex_1_score = "0101" and seg_r_left + p2_digit_1_score <= colSignal AND colSignal <= seg_r_right + p2_digit_1_score AND rowSignal >= seg_m_top AND seg_b_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print bottom segment of five
+			ELSIF(hex_1_score = "0101" and seg_l_left + p2_digit_1_score <= colSignal AND colSignal <= seg_r_right + p2_digit_1_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');  
+			
+			
+			-- six
+			-- print top segment of six
+			ELSIF(hex_1_score = "0110" and seg_l_left + p2_digit_1_score <= colSignal AND colSignal <= seg_r_right + p2_digit_1_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print left segment of six
+			ELSIF(hex_1_score = "0110" and seg_l_left + p2_digit_1_score <= colSignal AND colSignal <= seg_l_right + p2_digit_1_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print middle segment of six
+			ELSIF(hex_1_score = "0110" and seg_l_left + p2_digit_1_score <= colSignal AND colSignal <= seg_r_right + p2_digit_1_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print bottom segment of six
+			ELSIF(hex_1_score = "0110" and seg_l_left + p2_digit_1_score <= colSignal AND colSignal <= seg_r_right + p2_digit_1_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print right segment of six
+			ELSIF(hex_1_score = "0110" and seg_r_left + p2_digit_1_score <= colSignal AND colSignal <= seg_r_right + p2_digit_1_score AND rowSignal >= seg_m_top AND seg_b_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');  
+			  
+			  
+			-- seven
+			-- print top segment of seven
+			ELSIF(hex_1_score = "0111" and seg_l_left + p2_digit_1_score <= colSignal AND colSignal <= seg_r_right + p2_digit_1_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print right segment of seven
+			ELSIF(hex_1_score = "0111" and seg_r_left + p2_digit_1_score <= colSignal AND colSignal <= seg_r_right + p2_digit_1_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			  
+			  
+			-- eight
+			-- print left segment of eight
+			ELSIF(hex_1_score = "1000" and seg_l_left + p2_digit_1_score <= colSignal AND colSignal <= seg_l_right + p2_digit_1_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print right segment of eight;
+			ELSIF(hex_1_score = "1000" and seg_r_left + p2_digit_1_score <= colSignal AND colSignal <= seg_r_right + p2_digit_1_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print top segment of eight
+			ELSIF(hex_1_score = "1000" and seg_l_left + p2_digit_1_score <= colSignal AND colSignal <= seg_r_right + p2_digit_1_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print middle segment of eight
+			ELSIF(hex_1_score = "1000" and seg_l_left + p2_digit_1_score <= colSignal AND colSignal <= seg_r_right + p2_digit_1_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print bottom segment of eight
+			ELSIF(hex_1_score = "1000" and seg_l_left + p2_digit_1_score <= colSignal AND colSignal <= seg_r_right + p2_digit_1_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			  
+			  
+			-- nine
+			-- print top segment of nine
+			ELSIF(hex_1_score = "1001" and seg_l_left + p2_digit_1_score <= colSignal AND colSignal <= seg_r_right + p2_digit_1_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print right segment of nine;
+			ELSIF(hex_1_score = "1001" and seg_r_left + p2_digit_1_score <= colSignal AND colSignal <= seg_r_right + p2_digit_1_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print middle segment of nine
+			ELSIF(hex_1_score = "1001" and seg_l_left + p2_digit_1_score <= colSignal AND colSignal <= seg_r_right + p2_digit_1_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print left segment of nine
+			ELSIF(hex_1_score = "1001" and seg_l_left + p2_digit_1_score <= colSignal AND colSignal <= seg_l_right + p2_digit_1_score AND rowSignal >= seg_t_top AND seg_m_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			
+			
+			-- print score digit 0 player 2
+			-- zero
+			-- print left segment of zero
+			ELSIF(hex_0_score = "0000" and seg_l_left + p2_digit_0_score <= colSignal AND colSignal <= seg_l_right + p2_digit_0_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print right segment of zero;
+			ELSIF(hex_0_score = "0000" and seg_r_left + p2_digit_0_score <= colSignal AND colSignal <= seg_r_right + p2_digit_0_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print top segment of zero
+			ELSIF(hex_0_score = "0000" and seg_l_left + p2_digit_0_score <= colSignal AND colSignal <= seg_r_right + p2_digit_0_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print bottom segment of zero
+			ELSIF(hex_0_score = "0000" and seg_l_left + p2_digit_0_score <= colSignal AND colSignal <= seg_r_right + p2_digit_0_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			  
+			  
+			-- one
+			-- print right segment of one
+			ELSIF(hex_0_score = "0001" and seg_r_left + p2_digit_0_score <= colSignal AND colSignal <= seg_r_right + p2_digit_0_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			  
+			  
+			-- two
+			-- print top segment of two
+			ELSIF(hex_0_score = "0010" and seg_l_left + p2_digit_0_score <= colSignal AND colSignal <= seg_r_right + p2_digit_0_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print right segment of two
+			ELSIF(hex_0_score = "0010" and seg_r_left + p2_digit_0_score <= colSignal AND colSignal <= seg_r_right + p2_digit_0_score AND rowSignal >= seg_t_top AND seg_m_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print middle segment of two
+			ELSIF(hex_0_score = "0010" and seg_l_left + p2_digit_0_score <= colSignal AND colSignal <= seg_r_right + p2_digit_0_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print left segment of two
+			ELSIF(hex_0_score = "0010" and seg_l_left + p2_digit_0_score <= colSignal AND colSignal <= seg_l_right + p2_digit_0_score AND rowSignal >= seg_m_top AND seg_b_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print bottom segment of two
+			ELSIF(hex_0_score = "0010" and seg_l_left + p2_digit_0_score <= colSignal AND colSignal <= seg_r_right + p2_digit_0_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			  
+			  
+			-- three
+			-- print top segment of three
+			ELSIF(hex_0_score = "0011" and seg_l_left + p2_digit_0_score <= colSignal AND colSignal <= seg_r_right + p2_digit_0_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print middle segment of three
+			ELSIF(hex_0_score = "0011" and seg_l_left + p2_digit_0_score <= colSignal AND colSignal <= seg_r_right + p2_digit_0_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');  
+			-- print bottom segment of three
+			ELSIF(hex_0_score = "0011" and seg_l_left + p2_digit_0_score <= colSignal AND colSignal <= seg_r_right + p2_digit_0_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');  
+			-- print right segment of three
+			ELSIF(hex_0_score = "0011" and seg_r_left + p2_digit_0_score <= colSignal AND colSignal <= seg_r_right + p2_digit_0_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');  
+			  
+			  
+			-- four
+			-- print left segment of four
+			ELSIF(hex_0_score = "0100" and seg_l_left + p2_digit_0_score <= colSignal AND colSignal <= seg_l_right + p2_digit_0_score AND rowSignal >= seg_t_top AND seg_m_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');			
+			-- print middle segment of four
+			ELSIF(hex_0_score = "0100" and seg_l_left + p2_digit_0_score <= colSignal AND colSignal <= seg_r_right + p2_digit_0_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');  
+			-- print right segment of four
+			ELSIF(hex_0_score = "0100" and seg_r_left + p2_digit_0_score <= colSignal AND colSignal <= seg_r_right + p2_digit_0_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');  
+			  
+			  
+			-- five
+			-- print top segment of five
+			ELSIF(hex_0_score = "0101" and seg_l_left + p2_digit_0_score <= colSignal AND colSignal <= seg_r_right + p2_digit_0_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print left segment of five
+			ELSIF(hex_0_score = "0101" and seg_l_left + p2_digit_0_score <= colSignal AND colSignal <= seg_l_right + p2_digit_0_score AND rowSignal >= seg_t_top AND seg_m_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print middle segment of five
+			ELSIF(hex_0_score = "0101" and seg_l_left + p2_digit_0_score <= colSignal AND colSignal <= seg_r_right + p2_digit_0_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print right segment of five
+			ELSIF(hex_0_score = "0101" and seg_r_left + p2_digit_0_score <= colSignal AND colSignal <= seg_r_right + p2_digit_0_score AND rowSignal >= seg_m_top AND seg_b_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print bottom segment of five
+			ELSIF(hex_0_score = "0101" and seg_l_left + p2_digit_0_score <= colSignal AND colSignal <= seg_r_right + p2_digit_0_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');  
+			
+			
+			-- six
+			-- print top segment of six
+			ELSIF(hex_0_score = "0110" and seg_l_left + p2_digit_0_score <= colSignal AND colSignal <= seg_r_right + p2_digit_0_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print left segment of six
+			ELSIF(hex_0_score = "0110" and seg_l_left + p2_digit_0_score <= colSignal AND colSignal <= seg_l_right + p2_digit_0_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print middle segment of six
+			ELSIF(hex_0_score = "0110" and seg_l_left + p2_digit_0_score <= colSignal AND colSignal <= seg_r_right + p2_digit_0_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print bottom segment of six
+			ELSIF(hex_0_score = "0110" and seg_l_left + p2_digit_0_score <= colSignal AND colSignal <= seg_r_right + p2_digit_0_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print right segment of six
+			ELSIF(hex_0_score = "0110" and seg_r_left + p2_digit_0_score <= colSignal AND colSignal <= seg_r_right + p2_digit_0_score AND rowSignal >= seg_m_top AND seg_b_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');  
+			  
+			  
+			-- seven
+			-- print top segment of seven
+			ELSIF(hex_0_score = "0111" and seg_l_left + p2_digit_0_score <= colSignal AND colSignal <= seg_r_right + p2_digit_0_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print right segment of seven
+			ELSIF(hex_0_score = "0111" and seg_r_left + p2_digit_0_score <= colSignal AND colSignal <= seg_r_right + p2_digit_0_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			  
+			  
+			-- eight
+			-- print left segment of eight
+			ELSIF(hex_0_score = "1000" and seg_l_left + p2_digit_0_score <= colSignal AND colSignal <= seg_l_right + p2_digit_0_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print right segment of eight;
+			ELSIF(hex_0_score = "1000" and seg_r_left + p2_digit_0_score <= colSignal AND colSignal <= seg_r_right + p2_digit_0_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print top segment of eight
+			ELSIF(hex_0_score = "1000" and seg_l_left + p2_digit_0_score <= colSignal AND colSignal <= seg_r_right + p2_digit_0_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print middle segment of eight
+			ELSIF(hex_0_score = "1000" and seg_l_left + p2_digit_0_score <= colSignal AND colSignal <= seg_r_right + p2_digit_0_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print bottom segment of eight
+			ELSIF(hex_0_score = "1000" and seg_l_left + p2_digit_0_score <= colSignal AND colSignal <= seg_r_right + p2_digit_0_score AND rowSignal <= seg_b_bottom and seg_b_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			  
+			  
+			-- nine
+			-- print top segment of nine
+			ELSIF(hex_0_score = "1001" and seg_l_left + p2_digit_0_score <= colSignal AND colSignal <= seg_r_right + p2_digit_0_score AND rowSignal <= seg_t_bottom and seg_t_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print right segment of nine;
+			ELSIF(hex_0_score = "1001" and seg_r_left + p2_digit_0_score <= colSignal AND colSignal <= seg_r_right + p2_digit_0_score AND rowSignal >= seg_t_top AND seg_b_bottom >= rowSignal) THEN
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print middle segment of nine
+			ELSIF(hex_0_score = "1001" and seg_l_left + p2_digit_0_score <= colSignal AND colSignal <= seg_r_right + p2_digit_0_score AND rowSignal <= seg_m_bottom and seg_m_top <= rowSignal) then
+			  red_m <= (OTHERS => '1');
+			  green_m  <= (OTHERS => '1');
+			  blue_m <= (OTHERS => '1');
+			-- print left segment of nine
+			ELSIF(hex_0_score = "1001" and seg_l_left + p2_digit_0_score <= colSignal AND colSignal <= seg_l_right + p2_digit_0_score AND rowSignal >= seg_t_top AND seg_m_bottom >= rowSignal) THEN
 			  red_m <= (OTHERS => '1');
 			  green_m  <= (OTHERS => '1');
 			  blue_m <= (OTHERS => '1');
@@ -3203,9 +3469,9 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 
 			-- PADDLE2
 			ELSIF(x2_left < colSignal AND colSignal < x2_right AND paddle2_top < rowSignal AND rowSignal < paddle2_bottom) THEN
-			  red_m <= "00001111";
-			  green_m  <= "00001111";
-			  blue_m <= (OTHERS => '0');
+			  red_m <= (OTHERS => '0');
+			  green_m  <= "00001100";
+			  blue_m <= "00001100";
 			  
 			-- BALL
 			ELSIF(ball_left < colSignal AND colSignal < ball_right AND ball_top < rowSignal AND rowSignal < ball_bottom) THEN
@@ -3215,9 +3481,9 @@ display: PROCESS(dispEn, rowSignal, colSignal)
 			  
 			-- BALL2
 			ELSIF(ball2_left < colSignal AND colSignal < ball2_right AND ball2_top < rowSignal AND rowSignal < ball2_bottom) THEN
-			  red_m <= "00001111";
-			  green_m  <= "00001111";
-			  blue_m <= (OTHERS => '0');
+			  red_m <= (OTHERS => '0');
+			  green_m  <= "00001100";
+			  blue_m <= "00001100";
 			  
 			-- block 1
 			ELSIF(block_on(1) = '1' AND block_left(1) < colSignal AND colSignal < block_right(1) AND row_one_top < rowSignal AND rowSignal < row_one_bottom) THEN
