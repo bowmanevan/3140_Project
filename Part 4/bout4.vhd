@@ -18,10 +18,10 @@ entity bout4 is
 	bottom_of_top : INTEGER := 75;
 	
 	row_one_top : INTEGER := 125;
-	row_one_bottom : INTEGER := 130;
+	row_one_bottom : INTEGER := 135;
 	
-	row_two_top : INTEGER := 135;
-	row_two_bottom : INTEGER := 140;
+	row_two_top : INTEGER := 140;
+	row_two_bottom : INTEGER := 150;
 	
 	paddle_top : INTEGER := 425;
 	paddle_bottom : INTEGER := 430;
@@ -166,14 +166,14 @@ signal encode_clk : std_logic := '0';
 
 
 -- ball clock
-signal ball_counter : INTEGER:= 125000;
+signal ball_counter : INTEGER:= 250000;
 signal ball_clk : std_logic := '0';
 
 -- ball signals
-signal ball_top : INTEGER:= 235;
-signal ball_bottom : INTEGER:= 240;
-signal ball_left : INTEGER := 315;
-signal ball_right : INTEGER := 320;
+signal ball_top : INTEGER:= 230;
+signal ball_bottom : INTEGER:= 237;
+signal ball_left : INTEGER := 320;
+signal ball_right : INTEGER := 327;
 
 -- intialized to left and down
 	-- left = 0, right = 1
@@ -1104,52 +1104,52 @@ IF(rising_edge(ball_clk)) THEN
 		-- moving left
 		if(left_right = '0') then
 			-- "English" check to determine velocity at paddle collision
-			if(velocity_increase = '0') then
+			--if(velocity_increase = '0') then
 				ball_left  <= ball_left - 1;
 				ball_right <= ball_right - 1;
-			else
-			   ball_left  <= ball_left - 2;
-				ball_right <= ball_right - 2;
-			end if;
+			--else
+			   --ball_left  <= ball_left - 2;
+				--ball_right <= ball_right - 2;
+			--end if;
 		-- moving right
 		elsif (left_right = '1') then
 			-- "English" check to determine velocity at paddle collision
-			if(velocity_increase = '0') then
+			--if(velocity_increase = '0') then
 				ball_left  <= ball_left + 1;
 				ball_right <= ball_right +	1;
-			else
-			   ball_left  <= ball_left + 2;
-				ball_right <= ball_right + 2;
-			end if;
+			--else
+			   --ball_left  <= ball_left + 2;
+				--ball_right <= ball_right + 2;
+			--end if;
 		end if;
 		
 		-- moving up
 		if(up_down = '0') then
 			-- "English" check to determine velocity at paddle collision
-			if(velocity_increase = '0') then
+			--if(velocity_increase = '0') then
 				ball_top <= ball_top - 1;
 				ball_bottom <= ball_bottom - 1;
-			else
-				ball_top <= ball_top - 2;
-				ball_bottom <= ball_bottom - 2;
-			end if;
+			--else
+				--ball_top <= ball_top - 2;
+				--ball_bottom <= ball_bottom - 2;
+			--end if;
 		-- moving down
 		elsif (up_down = '1') then
 			-- "English" check to determine velocity at paddle collision
-			if(velocity_increase = '0') then
+			--if(velocity_increase = '0') then
 				ball_top <= ball_top + 1;
 				ball_bottom <= ball_bottom + 1;
-			else
+			--else
 				ball_top <= ball_top + 2;
 				ball_bottom <= ball_bottom + 2;
-			end if;
+			--end if;
 		end if;
 	-- reset to initial position, if ball has fallen in pit
 	else
-		ball_top <= 235;
-		ball_bottom <= 240;
-		ball_left <= 315;
-		ball_right <= 320;
+		ball_top <= 230;
+		ball_bottom <= 237;
+		ball_left <= 320;
+		ball_right <= 327;
 		if(game_over_loss /= '1') then
 			hex_4_lives <= std_logic_vector(unsigned(hex_4_lives) - unsigned(add_val));
 		end if;
@@ -1165,17 +1165,21 @@ begin
 	end if;
 end process;
 
--- 0.005 second clock for ball movement testing
+-- 0.05 second clock for ball movement testing
 ball_clock : process(max10_clk, start)
         begin
 		  -- if pause is not in effect
         IF (start = '1') THEN
 			  if(rising_edge(max10_clk)) then 
 					ball_counter <= ball_counter - 1;
-					-- if count value has counted to 2,500,000, toggle ball_clock
+					-- if count value has counted to 250,000, toggle ball_clock
 						 if (ball_counter <= 0) then
 							  ball_clk <= not ball_clk;
-							  ball_counter <= 125000;
+							  if (velocity_increase = '0') then
+									ball_counter <= 250000;
+							  else
+									ball_counter <= 125000;
+							  end if;
 						 end if;
 			  end if;
 		  END IF;
@@ -2374,3 +2378,4 @@ display: PROCESS(dispEn, rowSignal, colSignal)
     ULives1: bcd_7segment port map(hex_4_lives, hex4);
 	 
 end breakout_1p;
+
