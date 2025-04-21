@@ -1,3 +1,4 @@
+
 library ieee;
 use ieee.std_logic_1164.all;
 use IEEE.numeric_std.all;
@@ -1972,7 +1973,7 @@ begin
 		buzzer_out <= buzzer;
 end process;
 
-lives: process (reset_location, reset_location2, key0)
+lives: process (ball_clk, key0)
 begin
 if (key0 = '0') then  -- added async reset for ball movemnt
 		
@@ -1984,16 +1985,18 @@ if (key0 = '0') then  -- added async reset for ball movemnt
       
 
 else
-		-- if lives have run out, game_over is set to 1
-		if (hex_2_lives = "0000") then
-			game_over_loss <= '1';
-		end if;
-		
-		IF (reset_location = '1' OR reset_location2 = '1') THEN
-			if(game_over_loss /= '1') then
-				hex_2_lives <= std_logic_vector(unsigned(hex_2_lives) - unsigned(add_val));
+		if(rising_edge(ball_clk)) then
+			-- if lives have run out, game_over is set to 1
+			if (hex_2_lives = "0000") then
+				game_over_loss <= '1';
 			end if;
-		END IF;
+			
+			IF (reset_location = '1' OR reset_location2 = '1') THEN
+				if(game_over_loss /= '1') then
+					hex_2_lives <= std_logic_vector(unsigned(hex_2_lives) - unsigned(add_val));
+				end if;
+			END IF;
+		end if;
 end if;
 
 end process;
