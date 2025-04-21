@@ -2378,3 +2378,4 @@ display: PROCESS(dispEn, rowSignal, colSignal)
     ULives1: bcd_7segment port map(hex_4_lives, hex4);
 	 
 end breakout_1p;
+
