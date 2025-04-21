@@ -289,7 +289,7 @@ begin
 		block_on <= (others => '1'); --turn on all the blocks hitboxes 
 		game_over_win <= '0';
 		velocity_increase <= '0';
-		velocity_increase <= '0';
+		velocity_increase2 <= '0';
 		
 		-- on next ball "serve"
 		-- go down and.....
@@ -2059,45 +2059,45 @@ IF(rising_edge(ball_clk)) THEN
 		-- moving left
 		if(left_right2 = '0') then
 			-- "English" check to determine velocity at paddle collision
-			--if(velocity_increase2 = '0') then
+			if(velocity_increase2 = '0') then
 				ball2_left  <= ball2_left - 1;
 				ball2_right <= ball2_right - 1;
-			--else
-			   --ball2_left  <= ball2_left - 2;
-				--ball2_right <= ball2_right - 2;
-			--end if;
+			else
+			   ball2_left  <= ball2_left - 2;
+				ball2_right <= ball2_right - 2;
+			end if;
 		-- moving right
 		elsif (left_right2 = '1') then
 			-- "English" check to determine velocity at paddle collision
-			--if(velocity_increase2 = '0') then
+			if(velocity_increase2 = '0') then
 				ball2_left  <= ball2_left + 1;
 				ball2_right <= ball2_right +	1;
-			--else
-			   --ball2_left  <= ball2_left + 2;
-				--ball2_right <= ball2_right + 2;
-			--end if;
+			else
+			   ball2_left  <= ball2_left + 2;
+				ball2_right <= ball2_right + 2;
+			end if;
 		end if;
 		
 		-- moving up
 		if(up_down2 = '0') then
 			-- "English" check to determine velocity at paddle collision
-			--if(velocity_increase2 = '0') then
+			if(velocity_increase2 = '0') then
 				ball2_top <= ball2_top - 1;
 				ball2_bottom <= ball2_bottom - 1;
-			--else
-				--ball2_top <= ball2_top - 2;
-				--ball2_bottom <= ball2_bottom - 2;
-			--end if;
+			else
+				ball2_top <= ball2_top - 2;
+				ball2_bottom <= ball2_bottom - 2;
+			end if;
 		-- moving down
 		elsif (up_down2 = '1') then
 			-- "English" check to determine velocity at paddle collision
-			--if(velocity_increase2 = '0') then
+			if(velocity_increase2 = '0') then
 				ball2_top <= ball2_top + 1;
 				ball2_bottom <= ball2_bottom + 1;
-			--else
-				--ball2_top <= ball2_top + 2;
-				--ball2_bottom <= ball2_bottom + 2;
-			--end if;
+			else
+				ball2_top <= ball2_top + 2;
+				ball2_bottom <= ball2_bottom + 2;
+			end if;
 		end if;
 	-- reset to initial position, if ball has fallen in pit
 	else
@@ -2129,13 +2129,13 @@ ball_clock : process(max10_clk, start)
         IF (start = '1') THEN
 			  if(rising_edge(max10_clk)) then 
 					ball_counter <= ball_counter - 1;
-					-- if count value has counted to 2,500,000, toggle ball_clock
+					-- if count value has counted to 250,000, toggle ball_clock
 						 if (ball_counter <= 0) then
 							  ball_clk <= not ball_clk;
 							  --if (velocity_increase = '0') then
 									ball_counter <= 250000;
 							  --else
-									--ball_counter <= 200000;
+									ball_counter <= 200000;
 							  --end if;
 						 end if;
 			  end if;
