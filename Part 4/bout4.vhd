@@ -18,10 +18,10 @@ entity bout4 is
 	bottom_of_top : INTEGER := 75;
 	
 	row_one_top : INTEGER := 125;
-	row_one_bottom : INTEGER := 130;
+	row_one_bottom : INTEGER := 135;
 	
-	row_two_top : INTEGER := 135;
-	row_two_bottom : INTEGER := 140;
+	row_two_top : INTEGER := 140;
+	row_two_bottom : INTEGER := 150;
 	
 	paddle_top : INTEGER := 425;
 	paddle_bottom : INTEGER := 430;
@@ -166,14 +166,14 @@ signal encode_clk : std_logic := '0';
 
 
 -- ball clock
-signal ball_counter : INTEGER:= 125000;
+signal ball_counter : INTEGER:= 250000;
 signal ball_clk : std_logic := '0';
 
 -- ball signals
-signal ball_top : INTEGER:= 235;
-signal ball_bottom : INTEGER:= 240;
-signal ball_left : INTEGER := 315;
-signal ball_right : INTEGER := 320;
+signal ball_top : INTEGER:= 230;
+signal ball_bottom : INTEGER:= 237;
+signal ball_left : INTEGER := 320;
+signal ball_right : INTEGER := 327;
 
 -- intialized to left and down
 	-- left = 0, right = 1
@@ -1079,10 +1079,10 @@ ball_movement : process(ball_clk,key0)
 begin
 if (key0 = '0') then  -- added async reset for ball movemnt
       
-      ball_top    <= 235; --reset ball postion
-      ball_bottom <= 240;
-      ball_left   <= 315;
-      ball_right  <= 320;
+      ball_top    <= 230; --reset ball postion
+      ball_bottom <= 237;
+      ball_left   <= 320;
+      ball_right  <= 327;
 		
 		-- reset lives
       hex_4_lives <= "1001";
@@ -1146,10 +1146,10 @@ IF(rising_edge(ball_clk)) THEN
 		end if;
 	-- reset to initial position, if ball has fallen in pit
 	else
-		ball_top <= 235;
-		ball_bottom <= 240;
-		ball_left <= 315;
-		ball_right <= 320;
+      ball_top    <= 230;
+      ball_bottom <= 237;
+      ball_left   <= 320;
+      ball_right  <= 327;
 		if(game_over_loss /= '1') then
 			hex_4_lives <= std_logic_vector(unsigned(hex_4_lives) - unsigned(add_val));
 		end if;
