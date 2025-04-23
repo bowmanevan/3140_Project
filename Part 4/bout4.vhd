@@ -17,11 +17,11 @@ entity bout4 is
 	col_z_right : INTEGER := 640;
 	bottom_of_top : INTEGER := 75;
 	
-	row_one_top : INTEGER := 125;
-	row_one_bottom : INTEGER := 150;
+	row_one_top : INTEGER := 120;
+	row_one_bottom : INTEGER := 155;
 	
-	row_two_top : INTEGER := 155;
-	row_two_bottom : INTEGER := 180;
+	row_two_top : INTEGER := 160;
+	row_two_bottom : INTEGER := 195;
 	
 	paddle_top : INTEGER := 425;
 	paddle_bottom : INTEGER := 430;
@@ -53,14 +53,14 @@ entity bout4 is
 	
 	
 	block_left  : int_array := (
-		 1 => 80,  2 => 115, 3 => 150, 4 => 185, 5 => 220,
-		 6 => 255, 7 => 290, 8 => 325, 9 => 360, 10 => 395,
-		 11 => 430, 12 => 465, 13 => 500, 14 => 535
+		 1 => 75,  2 => 110, 3 => 145, 4 => 180, 5 => 215,
+		 6 => 250, 7 => 285, 8 => 320, 9 => 355, 10 => 390,
+		 11 => 425, 12 => 460, 13 => 495, 14 => 530
 	);
 	block_right : int_array := (
-		 1 => 105, 2 => 140, 3 => 175, 4 => 210, 5 => 245,
-		 6 => 280, 7 => 315, 8 => 350, 9 => 385, 10 => 420,
-		 11 => 455, 12 => 490, 13 => 525, 14 => 560
+		 1 => 110, 2 => 145, 3 => 180, 4 => 215, 5 => 250,
+		 6 => 285, 7 => 320, 8 => 355, 9 => 390, 10 => 425,
+		 11 => 460, 12 => 495, 13 => 530, 14 => 565
 	)
 	
 	); 
