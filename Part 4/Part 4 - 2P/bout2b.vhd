@@ -2181,9 +2181,9 @@ ball_clock2 : process(max10_clk, start)
 						 if (ball_counter2 <= 0) then
 							  ball_clk2 <= not ball_clk2;
 							  if (velocity_increase2 = '0') then
-									ball_counter2 <= 250000;
-							  else
 									ball_counter2 <= 125000;
+							  else
+									ball_counter2 <= 100000;
 							  end if;
 						 end if;
 			  end if;
