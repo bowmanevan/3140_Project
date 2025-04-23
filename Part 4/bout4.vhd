@@ -1104,45 +1104,45 @@ IF(rising_edge(ball_clk)) THEN
 		-- moving left
 		if(left_right = '0') then
 			-- "English" check to determine velocity at paddle collision
-			if(velocity_increase = '0') then
+			--if(velocity_increase = '0') then
 				ball_left  <= ball_left - 1;
 				ball_right <= ball_right - 1;
-			else
-			   ball_left  <= ball_left - 2;
-				ball_right <= ball_right - 2;
-			end if;
+			--else
+			   --ball_left  <= ball_left - 2;
+				--ball_right <= ball_right - 2;
+			--end if;
 		-- moving right
 		elsif (left_right = '1') then
 			-- "English" check to determine velocity at paddle collision
-			if(velocity_increase = '0') then
+			--if(velocity_increase = '0') then
 				ball_left  <= ball_left + 1;
 				ball_right <= ball_right +	1;
-			else
-			   ball_left  <= ball_left + 2;
-				ball_right <= ball_right + 2;
-			end if;
+			--else
+			   --ball_left  <= ball_left + 2;
+				--ball_right <= ball_right + 2;
+			--end if;
 		end if;
 		
 		-- moving up
 		if(up_down = '0') then
 			-- "English" check to determine velocity at paddle collision
-			if(velocity_increase = '0') then
+			--if(velocity_increase = '0') then
 				ball_top <= ball_top - 1;
 				ball_bottom <= ball_bottom - 1;
-			else
-				ball_top <= ball_top - 2;
-				ball_bottom <= ball_bottom - 2;
-			end if;
+			--else
+				--ball_top <= ball_top - 2;
+				--ball_bottom <= ball_bottom - 2;
+			--end if;
 		-- moving down
 		elsif (up_down = '1') then
 			-- "English" check to determine velocity at paddle collision
-			if(velocity_increase = '0') then
+			--if(velocity_increase = '0') then
 				ball_top <= ball_top + 1;
 				ball_bottom <= ball_bottom + 1;
-			else
-				ball_top <= ball_top + 2;
-				ball_bottom <= ball_bottom + 2;
-			end if;
+			--else
+				--ball_top <= ball_top + 2;
+				--ball_bottom <= ball_bottom + 2;
+			--end if;
 		end if;
 	-- reset to initial position, if ball has fallen in pit
 	else
@@ -1165,17 +1165,21 @@ begin
 	end if;
 end process;
 
--- 0.005 second clock for ball movement testing
+-- 0.05 second clock for ball movement testing
 ball_clock : process(max10_clk, start)
         begin
 		  -- if pause is not in effect
         IF (start = '1') THEN
 			  if(rising_edge(max10_clk)) then 
 					ball_counter <= ball_counter - 1;
-					-- if count value has counted to 2,500,000, toggle ball_clock
+					-- if count value has counted to 250,000, toggle ball_clock
 						 if (ball_counter <= 0) then
 							  ball_clk <= not ball_clk;
-							  ball_counter <= 125000;
+							  if (velocity_increase = '0') then
+									ball_counter <= 250000;
+							  else
+									ball_counter <= 125000;
+							  end if;
 						 end if;
 			  end if;
 		  END IF;
