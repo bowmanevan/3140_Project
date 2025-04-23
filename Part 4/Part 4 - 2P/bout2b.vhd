@@ -18,11 +18,12 @@ entity bout2b is
 	col_z_right : INTEGER := 640;
 	bottom_of_top : INTEGER := 75;
 	
-	row_one_top : INTEGER := 125;
-	row_one_bottom : INTEGER := 135;
+		
+	row_one_top : INTEGER := 120;
+	row_one_bottom : INTEGER := 155;
 	
-	row_two_top : INTEGER := 140;
-	row_two_bottom : INTEGER := 150;
+	row_two_top : INTEGER := 155;
+	row_two_bottom : INTEGER := 190;
 	
 	paddle_top : INTEGER := 425;
 	paddle_bottom : INTEGER := 430;
@@ -57,14 +58,14 @@ entity bout2b is
 	
 	
 	block_left  : int_array := (
-		 1 => 80,  2 => 115, 3 => 150, 4 => 185, 5 => 220,
-		 6 => 255, 7 => 290, 8 => 325, 9 => 360, 10 => 395,
-		 11 => 430, 12 => 465, 13 => 500, 14 => 535
+		 1 => 75,  2 => 110, 3 => 145, 4 => 180, 5 => 215,
+		 6 => 250, 7 => 285, 8 => 320, 9 => 355, 10 => 390,
+		 11 => 425, 12 => 460, 13 => 495, 14 => 530
 	);
 	block_right : int_array := (
-		 1 => 105, 2 => 140, 3 => 175, 4 => 210, 5 => 245,
-		 6 => 280, 7 => 315, 8 => 350, 9 => 385, 10 => 420,
-		 11 => 455, 12 => 490, 13 => 525, 14 => 560
+		 1 => 110, 2 => 145, 3 => 180, 4 => 215, 5 => 250,
+		 6 => 285, 7 => 320, 8 => 355, 9 => 390, 10 => 425,
+		 11 => 460, 12 => 495, 13 => 530, 14 => 565
 	)
 	
 	); 
@@ -183,9 +184,9 @@ signal encode_clk : std_logic := '0';
 
 
 -- ball clock
-signal ball_counter : INTEGER:= 250000;
+signal ball_counter : INTEGER:= 125000;
 signal ball_clk : std_logic := '0';
-signal ball_counter2 : INTEGER:= 250000;
+signal ball_counter2 : INTEGER:= 125000;
 signal ball_clk2 : std_logic := '0';
 
 -- ball signals
@@ -433,78 +434,78 @@ begin
 				buzzer <= '1';
 		
 		-- ball 2
-			 -- if hit the top of paddle and one of the ball's sides is between the limits of the paddle
-			 elsif ( ball2_bottom = paddle_top AND ((x_left <= ball2_left AND ball2_left <= x_right) OR (x_left <= ball2_right AND ball2_right <= x_right)) ) then
-				-- rebound up
-				if (english = '1') then
-					up_down2 <= '0';
-					left_right2 <= not left_right2;
-					velocity_increase2 <= '1';
-				else
-					up_down2 <= '0';
-					velocity_increase2 <= '0';
-				end if;
-				add_score2 <= '0';
-				buzzer <= '1';
-				
-			 -- if hit the bottom of paddle and one of the ball's sides is between the limits of the paddle
-			 elsif ( ball2_top = paddle_bottom AND ((x_left <= ball2_left AND ball2_left <= x_right) OR (x_left <= ball2_right AND ball2_right <= x_right)) ) then
-				-- rebound down
-				up_down2 <= '1';
-				add_score2 <= '0';
-				buzzer <= '1';
-				
-			 -- if hit the right side of paddle and either the top or bottom of the ball is between the limits of the paddle
-			 elsif ( ball2_left = x_right AND ((paddle_top <= ball2_top AND ball2_top <= paddle_bottom) OR (paddle_top <= ball2_bottom AND ball2_bottom <= paddle_bottom)) ) then
-				-- rebound right
-				left_right2 <= '1';
-				add_score2 <= '0';
-				buzzer <= '1';
-				
-			 -- if hit the left side of paddle and either the top or bottom of the ball is between the limits of the paddle
-			 elsif ( ball2_right = x_left AND ((paddle_top <= ball2_top AND ball2_top <= paddle_bottom) OR (paddle_top <= ball2_bottom AND ball2_bottom <= paddle_bottom)) ) then
-				-- rebound left
-				left_right2 <= '0';
-				add_score2 <= '0';
-				buzzer <= '1';
+		--	 -- if hit the top of paddle and one of the ball's sides is between the limits of the paddle
+		--	 elsif ( ball2_bottom = paddle_top AND ((x_left <= ball2_left AND ball2_left <= x_right) OR (x_left <= ball2_right AND ball2_right <= x_right)) ) then
+		--		-- rebound up
+		--		if (english = '1') then
+		--			up_down2 <= '0';
+		--			left_right2 <= not left_right2;
+		--			velocity_increase2 <= '1';
+		--		else
+		--			up_down2 <= '0';
+		--			velocity_increase2 <= '0';
+		--		end if;
+		--		add_score2 <= '0';
+		--		buzzer <= '1';
+		--		
+		--	 -- if hit the bottom of paddle and one of the ball's sides is between the limits of the paddle
+		--	 elsif ( ball2_top = paddle_bottom AND ((x_left <= ball2_left AND ball2_left <= x_right) OR (x_left <= ball2_right AND ball2_right <= x_right)) ) then
+		--		-- rebound down
+		--		up_down2 <= '1';
+		--		add_score2 <= '0';
+		--		buzzer <= '1';
+		--		
+		--	 -- if hit the right side of paddle and either the top or bottom of the ball is between the limits of the paddle
+		--	 elsif ( ball2_left = x_right AND ((paddle_top <= ball2_top AND ball2_top <= paddle_bottom) OR (paddle_top <= ball2_bottom AND ball2_bottom <= paddle_bottom)) ) then
+		--		-- rebound right
+		--		left_right2 <= '1';
+		--		add_score2 <= '0';
+		--		buzzer <= '1';
+		--		
+		--	 -- if hit the left side of paddle and either the top or bottom of the ball is between the limits of the paddle
+		--	 elsif ( ball2_right = x_left AND ((paddle_top <= ball2_top AND ball2_top <= paddle_bottom) OR (paddle_top <= ball2_bottom AND ball2_bottom <= paddle_bottom)) ) then
+		--		-- rebound left
+		--		left_right2 <= '0';
+		--		add_score2 <= '0';
+		--		buzzer <= '1';
 				
 				
 				
 				
 				
 	-- paddle 2 (bottom one)
-		-- ball 1
-			 -- if hit the top of paddle2 and one of the ball's sides is between the limits of the paddle
-			 elsif ( ball_bottom = paddle2_top AND ((x2_left <= ball_left AND ball_left <= x2_right) OR (x2_left <= ball_right AND ball_right <= x2_right)) ) then
-				-- rebound up
-				if (english2 = '1') then
-					up_down <= '0';
-					left_right <= not left_right;
-					velocity_increase <= '1';
-				else
-					up_down <= '0';
-					velocity_increase <= '0';
-				end if;
-				add_score <= '0';
-				buzzer <= '1';
-				
-			 -- if hit the bottom of paddle2 and one of the ball's sides is between the limits of the paddle
-			 elsif ( ball_top = paddle2_bottom AND ((x2_left <= ball_left AND ball_left <= x2_right) OR (x2_left <= ball_right AND ball_right <= x2_right)) ) then
-				-- rebound down
-				up_down <= '1';
-				add_score <= '0';
-				
-			 -- if hit the right side of paddle2 and either the top or bottom of the ball is between the limits of the paddle
-			 elsif ( ball_left = x2_right AND ((paddle2_top <= ball_top AND ball_top <= paddle2_bottom) OR (paddle2_top <= ball_bottom AND ball_bottom <= paddle2_bottom)) ) then
-				-- rebound right
-				left_right <= '1';
-				add_score <= '0';
-				
-			 -- if hit the left side of paddle2 and either the top or bottom of the ball is between the limits of the paddle
-			 elsif ( ball_right = x2_left AND ((paddle2_top <= ball_top AND ball_top <= paddle2_bottom) OR (paddle2_top <= ball_bottom AND ball_bottom <= paddle2_bottom)) ) then
-				-- rebound left
-				left_right <= '0';
-				add_score <= '0';
+		---- ball 1
+		--	 -- if hit the top of paddle2 and one of the ball's sides is between the limits of the paddle
+		--	 elsif ( ball_bottom = paddle2_top AND ((x2_left <= ball_left AND ball_left <= x2_right) OR (x2_left <= ball_right AND ball_right <= x2_right)) ) then
+		--		-- rebound up
+		--		if (english2 = '1') then
+		--			up_down <= '0';
+		--			left_right <= not left_right;
+		--			velocity_increase <= '1';
+		--		else
+		--			up_down <= '0';
+		--			velocity_increase <= '0';
+		--		end if;
+		--		add_score <= '0';
+		--		buzzer <= '1';
+		--		
+		--	 -- if hit the bottom of paddle2 and one of the ball's sides is between the limits of the paddle
+		--	 elsif ( ball_top = paddle2_bottom AND ((x2_left <= ball_left AND ball_left <= x2_right) OR (x2_left <= ball_right AND ball_right <= x2_right)) ) then
+		--		-- rebound down
+		--		up_down <= '1';
+		--		add_score <= '0';
+		--		
+		--	 -- if hit the right side of paddle2 and either the top or bottom of the ball is between the limits of the paddle
+		--	 elsif ( ball_left = x2_right AND ((paddle2_top <= ball_top AND ball_top <= paddle2_bottom) OR (paddle2_top <= ball_bottom AND ball_bottom <= paddle2_bottom)) ) then
+		--		-- rebound right
+		--		left_right <= '1';
+		--		add_score <= '0';
+		--		
+		--	 -- if hit the left side of paddle2 and either the top or bottom of the ball is between the limits of the paddle
+		--	 elsif ( ball_right = x2_left AND ((paddle2_top <= ball_top AND ball_top <= paddle2_bottom) OR (paddle2_top <= ball_bottom AND ball_bottom <= paddle2_bottom)) ) then
+		--		-- rebound left
+		--		left_right <= '0';
+		--		add_score <= '0';
 
 		-- ball 2
 			 -- if hit the top of paddle2 and one of the ball's sides is between the limits of the paddle
@@ -2075,7 +2076,7 @@ ball_movement2 : process(ball_clk2,key0)
 begin
 if (key0 = '0') then  -- added async reset for ball movemnt
 		
-	   ball2_top    <= 230; --reset ball2 postion
+	  ball2_top    <= 230; --reset ball2 postion
       ball2_bottom <= 237;
       ball2_left   <= 335;
       ball2_right  <= 342;
@@ -2160,9 +2161,9 @@ ball_clock : process(max10_clk, start)
 						 if (ball_counter <= 0) then
 							  ball_clk <= not ball_clk;
 							  if (velocity_increase = '0') then
-									ball_counter <= 250000;
-							  else
 									ball_counter <= 125000;
+							  else
+									ball_counter <= 100000;
 							  end if;
 						 end if;
 			  end if;
