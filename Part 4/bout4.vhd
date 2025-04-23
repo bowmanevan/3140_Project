@@ -18,10 +18,10 @@ entity bout4 is
 	bottom_of_top : INTEGER := 75;
 	
 	row_one_top : INTEGER := 125;
-	row_one_bottom : INTEGER := 135;
+	row_one_bottom : INTEGER := 150;
 	
-	row_two_top : INTEGER := 140;
-	row_two_bottom : INTEGER := 150;
+	row_two_top : INTEGER := 155;
+	row_two_bottom : INTEGER := 180;
 	
 	paddle_top : INTEGER := 425;
 	paddle_bottom : INTEGER := 430;
@@ -166,7 +166,7 @@ signal encode_clk : std_logic := '0';
 
 
 -- ball clock
-signal ball_counter : INTEGER:= 250000;
+signal ball_counter : INTEGER:= 125000;
 signal ball_clk : std_logic := '0';
 
 -- ball signals
@@ -1176,9 +1176,9 @@ ball_clock : process(max10_clk, start)
 						 if (ball_counter <= 0) then
 							  ball_clk <= not ball_clk;
 							  if (velocity_increase = '0') then
-									ball_counter <= 250000;
-							  else
 									ball_counter <= 125000;
+							  else
+									ball_counter <= 100000;
 							  end if;
 						 end if;
 			  end if;
