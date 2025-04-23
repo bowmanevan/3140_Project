@@ -20,8 +20,8 @@ entity bout4 is
 	row_one_top : INTEGER := 120;
 	row_one_bottom : INTEGER := 155;
 	
-	row_two_top : INTEGER := 160;
-	row_two_bottom : INTEGER := 195;
+	row_two_top : INTEGER := 155;
+	row_two_bottom : INTEGER := 190;
 	
 	paddle_top : INTEGER := 425;
 	paddle_bottom : INTEGER := 430;
